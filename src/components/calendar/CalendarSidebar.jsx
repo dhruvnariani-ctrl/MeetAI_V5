@@ -203,7 +203,6 @@ export default function CalendarSidebar({
 
   const status = getStatusKey(meeting)
   const done = status === 'Done'
-  const full = getMeetingById(meeting.id)
   const { autoJoin, recordVideo } = getMeetingToggleSettings(meeting, settings)
 
   const copyLink = async () => {
@@ -297,7 +296,7 @@ export default function CalendarSidebar({
             py: 0.9,
           }}
         >
-          Open Workspace &amp; Notes
+          Open Meeting Details
         </Button>
 
         {!done && meeting.link && (

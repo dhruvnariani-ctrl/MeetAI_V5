@@ -1,156 +1,112 @@
 import Box from '@mui/material/Box'
-import Paper from '@mui/material/Paper'
+import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
-/* -------------------------------------------------------------------------- */
-/* Reusable UI                                                                */
-/* -------------------------------------------------------------------------- */
+import { T, TONES } from './helpers'
 
-export function SectionCard({
-  icon,
-  title,
-  children,
-}) {
+/* White card with 1px hairline border and optional title, icon, badge and action. */
+export function Card({ title, subtitle, icon, badge, action, children, sx }) {
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        border: '1px solid #E9E7F5',
-        borderRadius: '14px',
-        bgcolor: '#fff',
-        boxShadow: '0 4px 16px rgba(30, 42, 80, 0.025)',
-        p: {
-          xs: 1.75,
-          sm: 2,
-        },
-      }}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 0.9,
-          mb: 1.25,
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            color: '#0967B2',
-
-            '& svg': {
-              fontSize: 19,
-            },
-          }}
-        >
-          {icon}
+    <Box sx={{ bgcolor: T.card, border: `1px solid ${T.line}`, borderRadius: '16px', boxShadow: T.shadow, p: { xs: 2, md: 2.5 }, minWidth: 0, ...sx }}>
+      {(title || action) && (
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, mb: 2, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
+            {icon}
+            <Box sx={{ minWidth: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                <Typography component="h2" sx={{ fontFamily: T.serif, fontSize: '1.3125rem', fontWeight: 500, color: T.primary, lineHeight: 1.2 }}>
+                  {title}
+                </Typography>
+                {badge}
+              </Box>
+              {subtitle && <Typography sx={{ mt: 0.25, fontSize: '0.8125rem', color: T.muted }}>{subtitle}</Typography>}
+            </Box>
+          </Box>
+          {action}
         </Box>
-
-        <Typography
-          sx={{
-            fontFamily: 'Georgia, Cambria, serif',
-            fontSize: '1rem',
-            fontWeight: 600,
-            color: '#123A59',
-          }}
-        >
-          {title}
-        </Typography>
-      </Box>
-
+      )}
       {children}
-    </Paper>
+    </Box>
   )
 }
 
-export function InfoCard({
-  label,
-  value,
-  icon,
-}) {
+export function IconTile({ children }) {
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        border: '1px solid #E9E7F5',
-        borderRadius: '12px',
-        bgcolor: '#fff',
-        p: 1.5,
-      }}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 0.75,
-          color: '#66778d',
-        }}
-      >
-        {icon}
-
-        <Typography
-          sx={{
-            fontSize: '0.75rem',
-            color: '#7b8ba1',
-          }}
-        >
-          {label}
-        </Typography>
-      </Box>
-
-      <Typography
-        sx={{
-          mt: 0.6,
-          fontSize: '0.875rem',
-          fontWeight: 700,
-          color: '#123A59',
-        }}
-      >
-        {value}
-      </Typography>
-    </Paper>
+    <Box aria-hidden="true" sx={{ width: 36, height: 36, borderRadius: '10px', display: 'grid', placeItems: 'center', flexShrink: 0, bgcolor: T.primary, color: '#86efac', '& svg': { fontSize: 20 } }}>
+      {children}
+    </Box>
   )
 }
 
-export function NotReadyCard({
-  icon,
-  title,
-  children,
-}) {
-  return (
-    <SectionCard
-      icon={icon}
-      title={title}
-    >
-      <NotReadyMessage>
-        {children}
-      </NotReadyMessage>
-    </SectionCard>
-  )
-}
-
-export function NotReadyMessage({
-  children,
-}) {
+/* Small status pill. Tones: green, blue, red, amber, slate, navy. */
+export function Badge({ tone = 'slate', children, sx }) {
+  const t = TONES[tone] ?? TONES.slate
   return (
     <Box
+      component="span"
       sx={{
-        p: 1.25,
-        borderRadius: '8px',
-        bgcolor: '#f8fafc',
-        border: '1px solid #e5eaf0',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 0.5,
+        px: 1,
+        py: 0.25,
+        borderRadius: '999px',
+        bgcolor: t.bg,
+        color: t.color,
+        fontFamily: T.sans,
+        fontSize: '0.6875rem',
+        fontWeight: 700,
+        letterSpacing: 0.2,
+        whiteSpace: 'nowrap',
+        '& svg': { fontSize: 14 },
+        ...sx,
       }}
     >
-      <Typography
-        sx={{
-          fontSize: '0.75rem',
-          lineHeight: 1.6,
-          color: '#66778d',
-        }}
-      >
-        {children}
-      </Typography>
+      {children}
     </Box>
+  )
+}
+
+/* Label / value row inside a tinted panel. */
+export function InfoRow({ label, value, mono = false, action }) {
+  return (
+    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1.5, py: 0.875, borderBottom: `1px solid ${T.line}`, '&:last-child': { borderBottom: 0 } }}>
+      <Typography sx={{ fontSize: '0.8125rem', color: T.muted }}>{label}</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
+        <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: T.ink, textAlign: 'right', fontFamily: mono ? 'monospace' : T.sans, overflowWrap: 'anywhere' }}>
+          {value}
+        </Typography>
+        {action}
+      </Box>
+    </Box>
+  )
+}
+
+export function LinkButton({ children, onClick, endIcon }) {
+  return (
+    <Button onClick={onClick} endIcon={endIcon} sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.8125rem', color: T.primary, px: 1, minWidth: 0 }}>
+      {children}
+    </Button>
+  )
+}
+
+/* Big number tile used at the top of the attendance and action item tabs. */
+export function StatTile({ label, value, note, tone = 'ink' }) {
+  const color = tone === 'green' ? T.green : tone === 'red' ? T.red : T.primary
+  return (
+    <Box sx={{ bgcolor: T.card, border: `1px solid ${T.line}`, borderRadius: '12px', p: 1.75, minWidth: 0 }}>
+      <Typography sx={{ fontSize: '0.8125rem', color: T.muted }}>{label}</Typography>
+      <Typography sx={{ mt: 0.25, fontFamily: T.serif, fontSize: '1.75rem', fontWeight: 500, lineHeight: 1.2, color }}>{value}</Typography>
+      {note && <Typography sx={{ mt: 0.25, fontSize: '0.8125rem', color: T.muted, overflowWrap: 'anywhere' }}>{note}</Typography>}
+    </Box>
+  )
+}
+
+/* Shown in place of a tab when its data is not ready yet. */
+export function NotReadyCard({ icon, title, children }) {
+  return (
+    <Card title={title} icon={<IconTile>{icon}</IconTile>}>
+      <Typography sx={{ color: T.muted, lineHeight: 1.6, fontSize: '0.9375rem' }}>{children}</Typography>
+    </Card>
   )
 }

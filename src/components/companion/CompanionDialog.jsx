@@ -1,4 +1,6 @@
+
 import { useEffect, useId, useRef, useState } from 'react'
+
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -11,40 +13,69 @@ import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import { visuallyHidden } from '@mui/utils'
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
-import CloseIcon from '@mui/icons-material/Close'
-import RestartAltIcon from '@mui/icons-material/RestartAlt'
+
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
+import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded'
 import SendRoundedIcon from '@mui/icons-material/SendRounded'
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined'
+
 import { SUGGESTIONS } from './companionEngine'
 
-const NAVY = '#123A59'
-const BLUE = '#0967B2'
-const BORDER = '#DFE7EC'
-const MUTED = '#5A7189'
-const CHIP_COLORS = ['#1b8a55', '#2f6fe4', '#7a4de0', '#e8820c', '#d6336c']
+const NAVY = '#102D4F'
+const HEADER_START = '#102C4A'
+const HEADER_END = '#063F47'
+const BLUE = '#1768B2'
+const BORDER = '#E7EDF4'
+const CANVAS = '#F7F9FC'
+const GREEN = '#15965A'
 
 function BotAvatar({ size = 28, imageSrc }) {
-  return imageSrc ? (
-    <Avatar src={imageSrc} alt="" sx={{ width: size, height: size, bgcolor: '#fff', border: `1px solid ${BORDER}` }} />
-  ) : (
-    <Box
-      aria-hidden="true"
+  return (
+    <Avatar
+      src={imageSrc || undefined}
+      alt=""
       sx={{
         width: size,
         height: size,
         flexShrink: 0,
-        display: 'grid',
-        placeItems: 'center',
-        borderRadius: '50%',
-        bgcolor: '#fff',
+        bgcolor: '#EAF2FF',
         color: BLUE,
-        border: `1px solid ${BORDER}`,
-        '& svg': { fontSize: size * 0.62 },
+        border: '1px solid #D8E5F5',
+        '& img': { objectFit: 'contain' },
       }}
     >
-      <SmartToyOutlinedIcon />
-    </Box>
+      {!imageSrc && <SmartToyOutlinedIcon sx={{ fontSize: size * 0.65 }} />}
+    </Avatar>
+  )
+}
+
+function MessageAction({ action, onAction }) {
+  return (
+    <Button
+      key={action.label}
+      size="small"
+      onClick={() => onAction(action)}
+      endIcon={<ArrowForwardRoundedIcon sx={{ fontSize: '14px !important' }} />}
+      sx={{
+        justifyContent: 'space-between',
+        textTransform: 'none',
+        fontSize: '0.75rem',
+        fontWeight: 650,
+        color: BLUE,
+        bgcolor: '#F3F7FD',
+        border: `1px solid ${BORDER}`,
+        borderRadius: '9px',
+        px: 1.1,
+        py: 0.45,
+        '&:hover': {
+          bgcolor: '#E8F1FC',
+          borderColor: '#C7DCF5',
+        },
+      }}
+    >
+      {action.label}
+    </Button>
   )
 }
 
@@ -52,51 +83,69 @@ function Bubble({ message, imageSrc, onAction }) {
   const bot = message.role === 'bot'
 
   return (
-    <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end', justifyContent: bot ? 'flex-start' : 'flex-end' }}>
-      {bot && <BotAvatar imageSrc={imageSrc} />}
+    <Stack
+      direction="row"
+      spacing={0.9}
+      sx={{
+        alignItems: 'flex-end',
+        justifyContent: bot ? 'flex-start' : 'flex-end',
+        width: '100%',
+      }}
+    >
+      {bot && <BotAvatar size={21} imageSrc={imageSrc} />}
 
-      <Box sx={{ maxWidth: '82%', minWidth: 0 }}>
+      <Box
+        sx={{
+          maxWidth: '86%',
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: bot ? 'flex-start' : 'flex-end',
+        }}
+      >
         <Box
           sx={{
-            px: 1.4,
-            py: 1,
-            borderRadius: bot ? '12px 12px 12px 4px' : '12px 12px 4px 12px',
-            bgcolor: bot ? '#fff' : BLUE,
-            color: bot ? NAVY : '#fff',
-            border: bot ? `1px solid ${BORDER}` : 0,
-            fontSize: '0.8125rem',
+            px: 1.35,
+            py: 1.05,
+            borderRadius: bot
+              ? '15px 15px 15px 5px'
+              : '15px 15px 5px 15px',
+            bgcolor: bot ? '#FFFFFF' : NAVY,
+            color: bot ? NAVY : '#FFFFFF',
+            border: bot ? `1px solid ${BORDER}` : '1px solid transparent',
+            boxShadow: bot
+              ? '0 2px 5px rgba(20, 45, 75, 0.025)'
+              : '0 3px 8px rgba(16, 45, 79, 0.10)',
+            fontSize: '0.77rem',
             lineHeight: 1.55,
             whiteSpace: 'pre-line',
             overflowWrap: 'anywhere',
           }}
         >
-          <span style={visuallyHidden}>{bot ? 'Companion: ' : 'You: '}</span>
+          <span style={visuallyHidden}>
+            {bot ? 'MeetAI Companion: ' : 'You: '}
+          </span>
           {message.text}
         </Box>
 
         {bot && message.actions?.length > 0 && (
-          <Stack direction="row" spacing={0.75} sx={{ mt: 0.75, flexWrap: 'wrap', rowGap: 0.75 }}>
+          <Stack
+            direction="row"
+            spacing={0.65}
+            useFlexGap
+            sx={{
+              mt: 0.75,
+              flexWrap: 'wrap',
+              rowGap: 0.65,
+              maxWidth: '100%',
+            }}
+          >
             {message.actions.map((action) => (
-              <Button
+              <MessageAction
                 key={action.label}
-                size="small"
-                variant="outlined"
-                endIcon={<ArrowForwardIcon sx={{ fontSize: '14px !important' }} />}
-                onClick={() => onAction(action)}
-                sx={{
-                  textTransform: 'none',
-                  fontSize: '0.75rem',
-                  fontWeight: 650,
-                  py: 0.25,
-                  borderRadius: '8px',
-                  color: BLUE,
-                  borderColor: '#b9d4ea',
-                  bgcolor: '#fff',
-                  '&:hover': { borderColor: BLUE, bgcolor: '#EFF6FB' },
-                }}
-              >
-                {action.label}
-              </Button>
+                action={action}
+                onAction={onAction}
+              />
             ))}
           </Stack>
         )}
@@ -107,34 +156,42 @@ function Bubble({ message, imageSrc, onAction }) {
 
 function Typing({ imageSrc }) {
   return (
-    <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end' }}>
-      <BotAvatar imageSrc={imageSrc} />
+    <Stack direction="row" spacing={0.9} sx={{ alignItems: 'flex-end' }}>
+      <BotAvatar size={21} imageSrc={imageSrc} />
+
       <Box
         role="status"
         sx={{
           display: 'flex',
-          gap: 0.6,
-          px: 1.5,
-          py: 1.35,
-          borderRadius: '12px 12px 12px 4px',
+          alignItems: 'center',
+          gap: 0.55,
+          px: 1.4,
+          py: 1.2,
           bgcolor: '#fff',
           border: `1px solid ${BORDER}`,
-          '@keyframes companionBlink': { '0%, 80%, 100%': { opacity: 0.25 }, '40%': { opacity: 1 } },
+          borderRadius: '14px 14px 14px 5px',
+          '@keyframes companionTyping': {
+            '0%, 60%, 100%': { opacity: 0.3, transform: 'translateY(0)' },
+            '30%': { opacity: 1, transform: 'translateY(-2px)' },
+          },
         }}
       >
         <span style={visuallyHidden}>Companion is typing</span>
-        {[0, 1, 2].map((i) => (
+
+        {[0, 1, 2].map((index) => (
           <Box
-            key={i}
+            key={index}
             aria-hidden="true"
             sx={{
-              width: 6,
-              height: 6,
+              width: 5,
+              height: 5,
               borderRadius: '50%',
-              bgcolor: '#9fb0c6',
-              animation: 'companionBlink 1s infinite',
-              animationDelay: `${i * 0.15}s`,
-              '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
+              bgcolor: '#8296AD',
+              animation: 'companionTyping 1s infinite',
+              animationDelay: `${index * 0.15}s`,
+              '@media (prefers-reduced-motion: reduce)': {
+                animation: 'none',
+              },
             }}
           />
         ))}
@@ -143,209 +200,407 @@ function Typing({ imageSrc }) {
   )
 }
 
-export default function CompanionDialog({ open, onClose, messages, busy, onSend, onAction, onReset, imageSrc ,isAtBottom = false}) {
+export default function CompanionDialog({
+  open,
+  onClose,
+  messages,
+  busy,
+  onSend,
+  onAction,
+  onReset,
+  imageSrc,
+
+}) {
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const titleId = useId()
   const listRef = useRef(null)
+  const inputRef = useRef(null)
   const [text, setText] = useState('')
 
-  /* Keep the newest message in view. */
   useEffect(() => {
-    const el = listRef.current
-    if (el) el.scrollTop = el.scrollHeight
+    const list = listRef.current
+    if (list) list.scrollTop = list.scrollHeight
   }, [messages, busy, open])
 
   const send = (value) => {
-    const v = value.trim()
-    if (!v || busy) return
+    const trimmed = value.trim()
+    if (!trimmed || busy) return
+
     setText('')
-    onSend(v)
+    onSend(trimmed)
+  }
+
+  const handleClose = () => {
+    setText('')
+    onClose()
   }
 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       fullScreen={fullScreen}
       aria-labelledby={titleId}
+      slotProps={{
+        paper: {
+          'data-tour': 'meetai-companion-dialog',
+        },
+      }}
       sx={{
         '& .MuiBackdrop-root': {
-          bgcolor: 'rgba(18, 58, 89, .18)',
+          bgcolor: 'rgba(12, 32, 55, 0.30)',
+          backdropFilter: 'blur(2px)',
         },
         '& .MuiDialog-container': {
-          alignItems: isAtBottom ? 'flex-start' : 'flex-end',
+          alignItems: 'flex-end',
           justifyContent: 'flex-end',
         },
         '& .MuiDialog-paper': {
           m: 0,
-          mr: fullScreen ? 0 : { sm: '27px' },
-          mt: isAtBottom ? { xs: 0, sm: '104px' } : 0,
-          mb: isAtBottom ? 0 : { sm: '104px' },
-          width: fullScreen ? '100%' : 400,
+          mr: fullScreen ? 0 : { sm: '20px', md: '24px' },
+          mt: 0,
+          mb:{ sm: '76px', md: '84px' },
+          width: fullScreen ? '100%' : 360,
           maxWidth: '100%',
-          height: { xs: '100%', sm: 580 },
-          maxHeight: {
-            xs: '100%',
-            sm: 'calc(100% - 130px)',
-          },
-          borderRadius: fullScreen ? 0 : '14px',
+          height: fullScreen ? '100%' : { sm: 460, md: 470 },
+          maxHeight: fullScreen ? '100%' : 'calc(100dvh - 110px)',
+          minHeight: fullScreen ? 0 : 340,
+          borderRadius: fullScreen ? 0 : '19px',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
+          bgcolor: '#fff',
+          boxShadow: '0 18px 55px rgba(10, 35, 62, 0.25)',
+          border: fullScreen ? 0 : '1px solid rgba(255,255,255,0.75)',
         },
       }}
     >
-      {/* Header */}
-<Stack
-  direction="row"
-  spacing={1.25}
-  sx={{ alignItems: 'center', px: 2,
-    py: 1.5,
-    bgcolor: '#e8f0fd',
-    borderBottom: `1px solid ${BORDER}`,
-    minHeight: 72,
-    boxSizing: 'border-box', }}
->
-  <BotAvatar size={38} imageSrc={imageSrc} />
-
-  <Stack
-    spacing={0.35}
-    sx={{
-      flex: 1,
-      minWidth: 0,
-      justifyContent: 'center',
-    }}
-  >
-    <Typography
-      id={titleId}
-      component="h2"
-      sx={{
-        fontSize: '0.9375rem',
-        fontWeight: 750,
-        lineHeight: 1.3,
-        color: NAVY,
-      }}
-    >
-      MeetAI Companion
-    </Typography>
-
-    <Stack direction="row" spacing={0.6} sx={{ alignItems: 'center' }}>
+      {/* Dark gradient header */}
       <Box
-        aria-hidden="true"
         sx={{
-          width: 7,
-          height: 7,
+          px: 1.6,
+          py: 1.35,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          color: '#fff',
+          background: `linear-gradient(115deg, ${HEADER_START} 0%, #123D52 58%, ${HEADER_END} 100%)`,
+          borderBottom: '1px solid rgba(255,255,255,0.12)',
           flexShrink: 0,
-          borderRadius: '50%',
-          bgcolor: '#1b8a55',
-        }}
-      />
-      <Typography
-        sx={{
-          fontSize: '0.75rem',
-          lineHeight: 1.4,
-          color: MUTED,
         }}
       >
-        Online · answers from your meetings
-      </Typography>
-    </Stack>
-  </Stack>
+        <Box sx={{ position: 'relative', flexShrink: 0 }}>
+          <Box
+            sx={{
+              width: 38,
+              height: 38,
+              display: 'grid',
+              placeItems: 'center',
+              borderRadius: '12px',
+              bgcolor: 'rgba(255,255,255,0.12)',
+              border: '1px solid rgba(255,255,255,0.14)',
+            }}
+          >
+            {imageSrc ? (
+              <Avatar
+                src={imageSrc}
+                alt=""
+                sx={{
+                  width: 31,
+                  height: 31,
+                  bgcolor: 'transparent',
+                  '& img': { objectFit: 'contain' },
+                }}
+              />
+            ) : (
+              <SmartToyOutlinedIcon sx={{ fontSize: 25 }} />
+            )}
+          </Box>
 
-  <Stack
-    direction="row"
-    spacing={0.25}
-    sx={{ alignItems: 'center', flexShrink: 0 }}
-  >
-    <IconButton
-      size="small"
-      aria-label="Start a new chat"
-      onClick={onReset}
-      sx={{ color: MUTED }}
-    >
-      <RestartAltIcon fontSize="small" />
-    </IconButton>
+          <Box
+            aria-label="Online"
+            sx={{
+              position: 'absolute',
+              right: -2,
+              top: -2,
+              width: 10,
+              height: 10,
+              bgcolor: '#39D98A',
+              border: '2px solid #123D52',
+              borderRadius: '50%',
+            }}
+          />
+        </Box>
 
-    <IconButton
-      size="small"
-      aria-label="Close"
-      onClick={onClose}
-      sx={{ color: MUTED }}
-    >
-      <CloseIcon fontSize="small" />
-    </IconButton>
-  </Stack>
-</Stack>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Stack
+            direction="row"
+            spacing={0.7}
+            useFlexGap
+            sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+          >
+            <Typography
+              id={titleId}
+              component="h2"
+              sx={{
+                color: '#fff',
+                fontSize: '0.88rem',
+                fontWeight: 750,
+                letterSpacing: '-0.015em',
+                lineHeight: 1.3,
+              }}
+            >
+              MeetAI Companion
+            </Typography>
 
-      {/* Messages */}
-      <Stack
+            <Box
+              sx={{
+                px: 0.65,
+                py: 0.2,
+                borderRadius: '5px',
+                bgcolor: 'rgba(57,217,138,0.13)',
+                border: '1px solid rgba(57,217,138,0.30)',
+                color: '#82E9B5',
+                fontSize: '0.56rem',
+                fontWeight: 800,
+                lineHeight: 1.3,
+              }}
+            >
+              AI ACTIVE
+            </Box>
+          </Stack>
+
+          <Stack
+            direction="row"
+            spacing={0.65}
+            sx={{ alignItems: 'center', mt: 0.45 }}
+          >
+            <Box
+              sx={{
+                width: 5,
+                height: 5,
+                borderRadius: '50%',
+                bgcolor: '#55D99B',
+              }}
+            />
+
+            <Typography
+              sx={{
+                color: 'rgba(255,255,255,0.88)',
+                fontSize: '0.7rem',
+                lineHeight: 1.4,
+              }}
+            >
+              Connected · ready to help
+            </Typography>
+          </Stack>
+        </Box>
+
+        <Stack direction="row" spacing={0.1} sx={{ flexShrink: 0 }}>
+          <IconButton
+            size="small"
+            aria-label="Start a new chat"
+            onClick={onReset}
+            sx={{
+              width: 29,
+              height: 29,
+              color: 'rgba(255,255,255,0.85)',
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' },
+            }}
+          >
+            <RefreshRoundedIcon sx={{ fontSize: 17 }} />
+          </IconButton>
+
+          <IconButton
+            size="small"
+            aria-label="Close Companion"
+            onClick={handleClose}
+            sx={{
+              width: 29,
+              height: 29,
+              color: 'rgba(255,255,255,0.92)',
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' },
+            }}
+          >
+            <CloseRoundedIcon sx={{ fontSize: 18 }} />
+          </IconButton>
+        </Stack>
+      </Box>
+
+      {/* Conversation */}
+      <Box
         ref={listRef}
         role="log"
         aria-live="polite"
         aria-label="Conversation"
-        spacing={1.5}
-        sx={{ flex: 1, minHeight: 0, overflowY: 'auto', p: 2, bgcolor: '#F7F9FB' }}
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: 'auto',
+          px: 1.5,
+          py: 1.35,
+          bgcolor: CANVAS,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1.4,
+          overscrollBehavior: 'contain',
+          '&::-webkit-scrollbar': { width: 5 },
+          '&::-webkit-scrollbar-thumb': {
+            bgcolor: '#D5DFEA',
+            borderRadius: 10,
+          },
+        }}
       >
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0.1 }}>
+          <Chip
+            label="Today · MeetAI Companion"
+            size="small"
+            sx={{
+              height: 22,
+              bgcolor: '#EAF0FA',
+              color: '#637994',
+              fontSize: '0.62rem',
+              fontWeight: 600,
+              '& .MuiChip-label': { px: 1.1 },
+            }}
+          />
+        </Box>
+
         {messages.map((message) => (
-          <Bubble key={message.id} message={message} imageSrc={imageSrc} onAction={onAction} />
+          <Bubble
+            key={message.id}
+            message={message}
+            imageSrc={imageSrc}
+            onAction={onAction}
+          />
         ))}
+
         {busy && <Typing imageSrc={imageSrc} />}
-      </Stack>
+      </Box>
 
-{/* Suggestions */}
-<Box
-  sx={{
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-    gap: 0.75,
-    px: 1.5,
-    py: 1,
-    borderTop: `1px solid ${BORDER}`,
-  }}
->
-  {SUGGESTIONS.map((label, i) => (
-    <Chip
-      key={label}
-      label={label}
-      size="small"
-      variant="outlined"
-      clickable
-      disabled={busy}
-      onClick={() => send(label)}
-      sx={{
-        width: '100%',
-        minWidth: 0,
-        fontSize: '0.75rem',
-        fontWeight: 650,
-        color: CHIP_COLORS[i % CHIP_COLORS.length],
-        borderColor: CHIP_COLORS[i % CHIP_COLORS.length],
-        bgcolor: '#fff',
-        '& .MuiChip-label': {
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        },
-      }}
-    />
-  ))}
-</Box>
+      {/* Quick prompts */}
+      <Box
+        sx={{
+          px: 1.2,
+          pt: 0.85,
+          pb: 0.8,
+          bgcolor: '#fff',
+          borderTop: `1px solid ${BORDER}`,
+          flexShrink: 0,
+        }}
+      >
+        <Stack
+          direction="row"
+          spacing={0.6}
+          sx={{
+            width: '100%',
+            overflowX: 'auto',
+            pb: 0.15,
+            '&::-webkit-scrollbar': { display: 'none' },
+            scrollbarWidth: 'none',
+          }}
+        >
+          {SUGGESTIONS.map((label, index) => {
+            const icons = ['▦', '›', '◉']
 
-      {/* Input */}
+            return (
+              <Chip
+                key={label}
+                label={
+                  <Stack
+                    direction="row"
+                    spacing={0.5}
+                    sx={{ alignItems: 'center' }}
+                  >
+                    <Box
+                      component="span"
+                      sx={{
+                        color: index === 2 ? GREEN : BLUE,
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                      }}
+                    >
+                      {icons[index % icons.length]}
+                    </Box>
+                    <span>{label}</span>
+                  </Stack>
+                }
+                size="small"
+                clickable
+                disabled={busy}
+                onClick={() => send(label)}
+                sx={{
+                  flexShrink: 0,
+                  height: 25,
+                  borderRadius: '9px',
+                  bgcolor: '#F5F8FC',
+                  color: '#455D78',
+                  border: '1px solid #EDF1F6',
+                  fontSize: '0.64rem',
+                  fontWeight: 650,
+                  '& .MuiChip-label': { px: 0.9 },
+                  '&:hover': {
+                    bgcolor: '#EAF2FC',
+                    borderColor: '#D6E5F6',
+                  },
+                }}
+              />
+            )
+          })}
+        </Stack>
+      </Box>
+
+      {/* Message input */}
       <Box
         component="form"
-        onSubmit={(e) => { e.preventDefault(); send(text) }}
-        sx={{ display: 'flex', gap: 1, px: 1.5, pb: 1.5, pt: 0.25 }}
+        onSubmit={(event) => {
+          event.preventDefault()
+          send(text)
+        }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.9,
+          px: 1.2,
+          pt: 0.45,
+          pb: 1.15,
+          bgcolor: '#fff',
+          flexShrink: 0,
+        }}
       >
         <OutlinedInput
-          autoFocus
+          inputRef={inputRef}
           fullWidth
           size="small"
           value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Ask about meetings, tasks, recordings…"
-          inputProps={{ 'aria-label': 'Message the Companion', maxLength: 300 }}
-          sx={{ borderRadius: '8px', fontSize: '0.8125rem', bgcolor: '#fff', '& input': { py: '9px' } }}
+          onChange={(event) => setText(event.target.value)}
+          placeholder="Ask about meetings, tasks, recordings..."
+          inputProps={{
+            'aria-label': 'Message the Companion',
+            maxLength: 300,
+          }}
+          sx={{
+            minWidth: 0,
+            borderRadius: '12px',
+            bgcolor: '#F9FBFD',
+            fontSize: '0.75rem',
+            color: NAVY,
+            '& .MuiOutlinedInput-input': {
+              py: 1.05,
+              px: 1.3,
+            },
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#E5EBF3',
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#C8D8EA',
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: BLUE,
+              borderWidth: 1,
+            },
+          }}
         />
 
         <IconButton
@@ -353,17 +608,46 @@ export default function CompanionDialog({ open, onClose, messages, busy, onSend,
           aria-label="Send message"
           disabled={!text.trim() || busy}
           sx={{
-            width: 40,
-            height: 40,
-            borderRadius: '8px',
+            width: 39,
+            height: 39,
+            flexShrink: 0,
+            borderRadius: '11px',
             color: '#fff',
-            bgcolor: BLUE,
-            '&:hover': { bgcolor: '#075A9D' },
-            '&.Mui-disabled': { bgcolor: '#dfe7ec', color: '#9fb0c6' },
+            bgcolor: NAVY,
+            boxShadow: '0 3px 7px rgba(16,45,79,0.15)',
+            '&:hover': { bgcolor: '#17456F' },
+            '&.Mui-disabled': {
+              bgcolor: '#DCE5EF',
+              color: '#93A4B8',
+              boxShadow: 'none',
+            },
           }}
         >
-          <SendRoundedIcon sx={{ fontSize: 19 }} />
+          <SendRoundedIcon sx={{ fontSize: 18 }} />
         </IconButton>
+      </Box>
+
+      {/* Small keyboard hint */}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          px: 1.6,
+          pb: 0.6,
+          mt: -0.45,
+          bgcolor: '#fff',
+          flexShrink: 0,
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: '0.53rem',
+            letterSpacing: 0.45,
+            color: '#A0ACBB',
+          }}
+        >
+          ESC TO CLOSE
+        </Typography>
       </Box>
     </Dialog>
   )

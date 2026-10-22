@@ -53,16 +53,37 @@ export default function CalendarToolbar({ title, count, view, selectedDate, onVi
   const unit = UNIT[view] ?? 'day'
 
   return (
-    <Box sx={{ ...cardSx, px: 1.5, py: 1, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1.5 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: C.soft, borderRadius: '10px', p: 0.25 }}>
+    <Box
+        sx={{
+          ...cardSx,
+          px: 1.5,
+          py: 1,
+          display: 'flex',
+          alignItems: { xs: 'stretch', sm: 'center' },
+          flexDirection: { xs: 'column', sm: 'row' },
+          flexWrap: 'wrap',
+          gap: 1.5,
+        }}
+      >
+    <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: C.soft, borderRadius: '10px', p: 0.25 }}>
         <IconButton size="small" aria-label={`Previous ${unit}`} onClick={onPrevious}>
           <ChevronLeftRoundedIcon />
         </IconButton>
         <Button
           onClick={onToday}
           aria-label={`${label}. Go to the current ${unit}`}
-          sx={{ bgcolor: '#fff', color: C.navy, fontWeight: 700, minWidth: 150, px: 1.5, py: 0.5, whiteSpace: 'nowrap', '&:hover': { bgcolor: '#fff' } }}
-        >
+          sx={{
+            bgcolor: '#fff',
+            color: C.navy,
+            fontWeight: 700,
+            minWidth: 0,
+            flex: 1,
+            px: 1.5,
+            py: 0.5,
+            whiteSpace: 'nowrap',
+            '&:hover': { bgcolor: '#fff' },
+          }}
+          >
           {label}
         </Button>
         <IconButton size="small" aria-label={`Next ${unit}`} onClick={onNext}>

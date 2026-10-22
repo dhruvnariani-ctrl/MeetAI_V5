@@ -1,7 +1,8 @@
 
 import { useMemo, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
-
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -37,7 +38,8 @@ import usePagination from '../hooks/usePagination'
 
 export default function RecordedMeetings() {
   usePageTitle('Recorded Meetings')
-
+  const theme = useTheme()
+const isSmallScreen = useMediaQuery(theme.breakpoints.down('lg'))
   const navigate = useNavigate()
   const { openCreate, openInstant } = useOutletContext() ?? {}
 
@@ -201,10 +203,12 @@ export default function RecordedMeetings() {
           />
         </Box>
 
-        <RecordingPlayer
-          meeting={selected}
-          onOpen={open}
-        />
+        {!isSmallScreen && (
+          <RecordingPlayer
+            meeting={selected}
+            onOpen={open}
+          />
+        )}
       </Box>
     </Box>
   )

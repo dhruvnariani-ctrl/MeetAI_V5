@@ -1,19 +1,22 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-/* Client-side paging. Pass a resetKey (filters, search, sort) and the page
-   jumps back to 1 whenever it changes. */
+/* Client-side pagination shared by lists and tables. Resets when items or resetKey changes. */
 export default function usePagination(items, pageSize, resetKey = '') {
-  const [state, setState] = useState({ page: 1, key: resetKey })
+  const [state, setState] = useState({ page: 1, items, resetKey })
+  const isCurrent = state.items === items && state.resetKey === resetKey
+  const page = isCurrent ? state.page : 1
 
-  let page = state.page
-  if (state.key !== resetKey) {
-    page = 1
-    setState({ page: 1, key: resetKey })
-  }
+  useEffect(() => {
+    setState((current) =>
+      current.items === items && current.resetKey === resetKey
+        ? current
+        : { page: 1, items, resetKey },
+    )
+  }, [items, resetKey])
 
   const total = items.length
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
-  const current = Math.min(page, pageCount)
+  const current = Math.min(Math.max(page, 1), pageCount)
   const start = (current - 1) * pageSize
 
   return {
@@ -23,6 +26,15 @@ export default function usePagination(items, pageSize, resetKey = '') {
     from: total ? start + 1 : 0,
     to: Math.min(start + pageSize, total),
     pageItems: items.slice(start, start + pageSize),
-    setPage: (next) => setState((s) => ({ ...s, page: next })),
+    setPage: (nextPage) => {
+      const requested =
+        typeof nextPage === 'function' ? nextPage(current) : nextPage
+
+      setState({
+        page: Math.min(Math.max(requested, 1), pageCount),
+        items,
+        resetKey,
+      })
+    },
   }
 }

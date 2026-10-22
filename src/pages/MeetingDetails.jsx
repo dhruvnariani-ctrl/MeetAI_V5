@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -12,37 +8,19 @@ import Stack from '@mui/material/Stack'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
 
 import PageShell, { EmptyPanel } from '../components/PageShell'
+import ConfirmMarkDoneDialog from '../components/tasks/ConfirmMarkDoneDialog'
+import ActionItemsTab from '../components/meetingDetails/ActionItemsTab'
+import AttendeesTab from '../components/meetingDetails/AttendeesTab'
 import MeetingHeader from '../components/meetingDetails/MeetingHeader'
-import MeetingTabs, {
-  VALID_TABS,
-} from '../components/meetingDetails/MeetingTabs'
+import MeetingTabs, { VALID_TABS } from '../components/meetingDetails/MeetingTabs'
 import OverviewTab from '../components/meetingDetails/OverviewTab'
 import RecordingTab from '../components/meetingDetails/RecordingTab'
 import TranscriptTab from '../components/meetingDetails/TranscriptTab'
-import ActionItemsTab from '../components/meetingDetails/ActionItemsTab'
-
-import {
-  getMeetingState,
-  getAttendance,
-  getDurationMinutes,
-  formatTimeRange,
-} from '../components/meetingDetails/utils'
-
-import { formatDate } from '../utils/time'
+import { T, copyText, downloadFile, getMeetingFlags, parseTranscript } from '../components/meetingDetails/helpers'
+import { formatTimeRange, getAttendance, getMeetingState } from '../components/meetingDetails/utils'
+import { getMeetingById, updateMeetingActionItemStatus } from '../data/meetings'
 import usePageTitle from '../hooks/usePageTitle'
-import { getMeetingById } from '../data/meetings'
-import { getMeetingSettings } from '../data/meetingSettings'
-
-const NAVY = '#123A59'
-const BLUE = '#0967B2'
-const BACKGROUND = '#F8F7FF'
-
-function getTabFromSearchParams(searchParams) {
-  const requestedTab = searchParams.get('tab')
-  return VALID_TABS.includes(requestedTab)
-    ? requestedTab
-    : 'overview'
-}
+import { formatDate } from '../utils/time'
 
 export default function MeetingDetails() {
   usePageTitle('Meeting Details')
@@ -52,23 +30,45 @@ export default function MeetingDetails() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [now, setNow] = useState(() => new Date())
-  const activeTab = getTabFromSearchParams(searchParams) // the URL is the single source of truth
+  const [, setVersion] = useState(0)
+  // The action item waiting for the "Mark as done?" confirmation.
+  const [pendingItem, setPendingItem] = useState(null)
   const meeting = getMeetingById(meetingId)
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setNow(new Date())
-    }, 30000)
-
+    const timer = window.setInterval(() => setNow(new Date()), 30000)
     return () => window.clearInterval(timer)
   }, [])
 
+  // The URL holds the active tab. Old links still work; unknown values fall back to the overview.
+  const requestedTab = searchParams.get('tab')
+  const activeTab = VALID_TABS.includes(requestedTab) ? requestedTab : 'overview'
+
+  const goToTab = (value) => {
+    if (!VALID_TABS.includes(value)) return
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current)
+        next.set('tab', value)
+        return next
+      },
+      { replace: true },
+    )
+  }
+
+  // Action item changes are saved elsewhere; bumping this re-reads the meeting so every tab shows the new status.
+  const refresh = () => setVersion((v) => v + 1)
+
+  // Mark complete: the person confirms in the dialog, then the change is saved.
+  const confirmDone = () => {
+    if (meeting && pendingItem) updateMeetingActionItemStatus(meeting.id, pendingItem.id, 'Done')
+    setPendingItem(null)
+    refresh()
+  }
+
   if (!meeting) {
     return (
-      <PageShell
-        title="Meeting not found"
-        subtitle="We couldn't find the meeting you're looking for."
-      >
+      <PageShell title="Meeting not found" subtitle="We couldn't find the meeting you're looking for.">
         <EmptyPanel
           title="This meeting is not available"
           action={
@@ -83,173 +83,73 @@ export default function MeetingDetails() {
     )
   }
 
-  const meetingState = getMeetingState(meeting, now)
-
-  // A saved false value must override the meeting's original invited setting.
-  const savedSettings = getMeetingSettings()
-  const savedMeetingSettings = savedSettings?.[meeting.id]
-
-  const meetAIInvited =
-    savedMeetingSettings?.autoJoin !== undefined
-      ? savedMeetingSettings.autoJoin === true
-      : meeting?.meetAI?.invited === true
-
+  const state = getMeetingState(meeting, now)
+  const flags = getMeetingFlags(meeting)
   const participants = meeting.participants || []
   const attendance = getAttendance(meeting, participants)
-  const durationMinutes = getDurationMinutes(meeting)
+  const attendedCount = attendance?.attended?.length ?? 0
+  const openActionCount = (meeting.actionItems || []).filter((i) => i.status === 'Pending' || i.status === 'Blocked').length
+  const segments = parseTranscript(meeting.transcript?.available ? meeting.transcript?.text : '')
   const timeText = formatTimeRange(meeting.start, meeting.end)
   const dateText = formatDate(meeting.start)
 
-  const handleTabChange = (_event, value) => {
-    if (!VALID_TABS.includes(value)) return
+  return (
+    <PageShell title="" subtitle="">
+      <Box sx={{ width: '100%', maxWidth: 1600, mx: 'auto', color: T.ink, boxSizing: 'border-box', minWidth: 0 }}>
+        <Stack spacing={2} sx={{ width: '100%', minWidth: 0 }}>
+          <Box>
+            <Button
+              startIcon={<ArrowBackRoundedIcon />}
+              onClick={() => navigate(-1)}
+              sx={{ textTransform: 'none', fontFamily: T.sans, fontSize: '0.8125rem', fontWeight: 600, color: T.primary, px: 0, '&:hover': { bgcolor: 'transparent', color: T.blue } }}
+            >
+              Back to Meetings
+            </Button>
+          </Box>
 
-    setSearchParams(
-      (currentParams) => {
-        const nextParams = new URLSearchParams(currentParams)
-        nextParams.set('tab', value)
-        return nextParams
-      },
-      { replace: true },
-    )
-  }
-
-  const goToTab = (value) => handleTabChange(null, value)
-
-return (
-  <PageShell title="" subtitle="">
-    <Box
-      sx={{
-        width: '100%',
-        maxWidth: 1600,
-        mx: 'auto',
-        color: NAVY,
-        boxSizing: 'border-box',
-        minWidth: 0,
-      }}
-    >
-      <Stack
-        spacing={1.5}
-        sx={{
-          width: '100%',
-          minWidth: 0,
-          alignItems: 'stretch',
-        }}
-      >
-        {/* Page navigation */}
-        <Box sx={{ width: '100%', minWidth: 0 }}>
-          <Button
-            startIcon={<ArrowBackRoundedIcon />}
-            onClick={() => navigate(-1)}
-            sx={{
-              textTransform: 'none',
-              fontSize: '0.8125rem',
-              fontWeight: 650,
-              color: NAVY,
-              px: 0,
-              '&:hover': {
-                bgcolor: 'transparent',
-                color: BLUE,
-              },
-            }}
-          >
-            Back to meetings
-          </Button>
-        </Box>
-
-        {/* Main meeting header */}
-        <Box
-          data-tour="meeting-header"
-          sx={{
-            width: '100%',
-            minWidth: 0,
-            p: { xs: 1.5, md: 2.25 },
-            border: '1px solid #E9E7F5',
-            borderRadius: '16px',
-            bgcolor: '#FFFFFF',
-            backgroundImage: 'linear-gradient(115deg, #FFFFFF 0%, #FFFFFF 65%, #F1F4FF 100%)',
-            boxShadow: '0 4px 18px rgba(30, 42, 80, 0.035)',
-          }}
-        >
           <MeetingHeader
             meeting={meeting}
-            meetingState={meetingState}
-            dateText={dateText}
+            state={state}
+            flags={flags}
             timeText={timeText}
-            durationMinutes={durationMinutes}
-            onViewRecording={() => goToTab('recording')}
+            dateText={dateText}
+            attendedCount={attendedCount}
+            participantCount={participants.length}
+            onWatch={() => goToTab('recording')}
+            onTranscript={() => downloadFile(`${meeting.title || 'meeting'}-transcript.txt`, meeting.transcript?.text || '')}
+            onPrint={() => window.print()}
+            onCopyLink={() => copyText(meeting.link)}
           />
-        </Box>
 
-        {/* Tabs */}
-        <Box
-          sx={{
-            width: '100%',
-            minWidth: 0,
-            position: 'sticky',
-            top: 0,
-            zIndex: 2,
-            p: 0.5,
-            border: '1px solid #E9E7F5',
-            borderRadius: '14px',
-            bgcolor: '#FFFFFF',
-            boxShadow: '0 3px 12px rgba(30, 42, 80, 0.035)',
-            boxSizing: 'border-box',
-          }}
-        >
-          <MeetingTabs
-            value={activeTab}
-            onChange={handleTabChange}
-          />
-        </Box>
-
-        {/* Active tab content */}
-        <Box
-          sx={{
-            width: '100%',
-            minWidth: 0,
-            boxSizing: 'border-box',
-            '& > *': {
-              width: '100%',
-              maxWidth: 'none',
-              minWidth: 0,
-              boxSizing: 'border-box',
-            },
-          }}
-        >
-          {activeTab === 'overview' && (
-            <OverviewTab
-              meeting={meeting}
-              meetingState={meetingState}
-              attendance={attendance}
-              durationMinutes={durationMinutes}
-              meetAIInvited={meetAIInvited}
-              onNavigate={goToTab}
+          <Box sx={{ overflowX: 'auto' }}>
+            <MeetingTabs
+              value={activeTab}
+              onChange={(_event, value) => goToTab(value)}
+              attendeeCount={participants.length}
+              openActionCount={openActionCount}
             />
-          )}
+          </Box>
 
-          {activeTab === 'recording' && (
-            <RecordingTab
-              meeting={meeting}
-              meetingState={meetingState}
-            />
-          )}
+          <Box sx={{ minWidth: 0 }}>
+            {activeTab === 'overview' && (
+              <OverviewTab meeting={meeting} flags={flags} attendance={attendance} onNavigate={goToTab} onChanged={refresh} onAskDone={setPendingItem} />
+            )}
+            {activeTab === 'attendees' && <AttendeesTab meeting={meeting} attendance={attendance} />}
+            {activeTab === 'recording' && (
+              <RecordingTab meeting={meeting} state={state} flags={flags} segments={segments} timeText={timeText} />
+            )}
+            {activeTab === 'transcript' && <TranscriptTab meeting={meeting} state={state} />}
+            {activeTab === 'actions' && <ActionItemsTab meeting={meeting} state={state} onChanged={refresh} onAskDone={setPendingItem} />}
+          </Box>
+        </Stack>
+      </Box>
 
-          {activeTab === 'transcript' && (
-            <TranscriptTab
-              meeting={meeting}
-              meetingState={meetingState}
-            />
-          )}
-
-          {activeTab === 'actions' && (
-            <ActionItemsTab
-              meeting={meeting}
-              meetingState={meetingState}
-            />
-          )}
-        </Box>
-      </Stack>
-    </Box>
-  </PageShell>
-)
+      <ConfirmMarkDoneDialog
+        open={Boolean(pendingItem)}
+        taskTitle={pendingItem?.title ?? ''}
+        onCancel={() => setPendingItem(null)}
+        onConfirm={confirmDone}
+      />
+    </PageShell>
+  )
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
-
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -22,7 +23,8 @@ import { dateKey, endOfWeek, parseDate, startOfWeek } from '../utils/calenderDat
 
 export default function CalendarPage() {
   usePageTitle('Calendar')
-
+  const theme = useTheme()
+const isSmallScreen = useMediaQuery(theme.breakpoints.down('lg'))
   const now = useNow()
   const navigate = useNavigate()
   const { openCreate, openInstant } = useOutletContext() ?? {}
@@ -103,11 +105,17 @@ export default function CalendarPage() {
           now={now}
           settings={settings}
           selectedId={selected?.id}
-          onSelect={toggleSelect}
+          onSelect={isSmallScreen ? () => {} : toggleSelect}
           onOpen={openMeeting}
         />
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25, minWidth: 0, minHeight: 0 }}>
+        <Box  sx={{
+    display: { xs: 'none', lg: 'flex' },
+    flexDirection: 'column',
+    gap: 1.25,
+    minWidth: 0,
+    minHeight: 0,
+  }}>
           {selected ? (
             <>
               <CalendarSidebar

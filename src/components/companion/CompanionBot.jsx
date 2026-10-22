@@ -30,62 +30,6 @@ export default function CompanionBot({
     { id: 1, role: 'bot', ...GREETING },
   ])
 
-  // Detect scrolling on either the page or a scrollable app container.
-  useEffect(() => {
-    const checkPosition = (event) => {
-      const target = event?.target
-
-      // A scrollable element inside the application.
-      if (
-        target instanceof Element &&
-        target !== document.documentElement &&
-        target !== document.body &&
-        target.scrollHeight > target.clientHeight + 1
-      ) {
-        const atBottom =
-          target.scrollTop + target.clientHeight >=
-          target.scrollHeight - BOTTOM_THRESHOLD
-
-        setIsAtBottom(atBottom)
-        return
-      }
-
-      // The browser window/document.
-      const documentElement = document.documentElement
-      const scrollTop =
-        window.scrollY ||
-        documentElement.scrollTop ||
-        document.body.scrollTop ||
-        0
-
-      const scrollHeight = Math.max(
-        documentElement.scrollHeight,
-        document.body.scrollHeight,
-      )
-
-      const viewportHeight = window.innerHeight
-
-      const atBottom =
-        scrollTop + viewportHeight >=
-        scrollHeight - BOTTOM_THRESHOLD
-
-      setIsAtBottom(atBottom)
-    }
-
-    checkPosition()
-
-    // Capture scroll events from nested scroll containers too.
-    document.addEventListener('scroll', checkPosition, true)
-    window.addEventListener('scroll', checkPosition, { passive: true })
-    window.addEventListener('resize', checkPosition)
-
-    return () => {
-      document.removeEventListener('scroll', checkPosition, true)
-      window.removeEventListener('scroll', checkPosition)
-      window.removeEventListener('resize', checkPosition)
-    }
-  }, [])
-
   const canRun = (action) =>
     Boolean(action.to) ||
     (action.command === 'create' && onCreateMeeting) ||

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -11,6 +11,7 @@ import MeetingToggles from '../MeetingToggles'
 import DashboardCompletedBar from './DashboardCompletedBar'
 import { C, Pill, cardSx, lightBtn, minutesOf } from '../ui'
 import { formatTime, statusOf } from './dashboardUtils'
+import usePagination from '../../hooks/usePagination'
 
 const PAGE_SIZE = 5
 
@@ -138,32 +139,22 @@ export default function MeetingTimeline({
   onSettingsChange,
   onOpen,
 }) {
-  const [page, setPage] = useState(1)
-
   const scheduled = useMemo(
     () => meetings.filter((meeting) => statusOf(meeting, now) !== 'past'),
     [meetings, now],
   )
 
-  const totalPages = Math.max(1, Math.ceil(scheduled.length / PAGE_SIZE))
-  const safePage = Math.min(page, totalPages)
+  const {
+    page: safePage,
+    pageCount: totalPages,
+    total,
+    from: firstItem,
+    to: lastItem,
+    pageItems: paginatedMeetings,
+    setPage,
+  } = usePagination(scheduled, PAGE_SIZE)
 
-  const paginatedMeetings = useMemo(() => {
-    const startIndex = (safePage - 1) * PAGE_SIZE
-    return scheduled.slice(startIndex, startIndex + PAGE_SIZE)
-  }, [scheduled, safePage])
-
-  useEffect(() => {
-    setPage(1)
-  }, [meetings])
-
-  const goToPage = (nextPage) => {
-    setPage(Math.min(Math.max(nextPage, 1), totalPages))
-  }
-
-  const firstItem =
-    scheduled.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1
-  const lastItem = Math.min(safePage * PAGE_SIZE, scheduled.length)
+  const goToPage = setPage
 
   return (
     <Box
@@ -284,7 +275,7 @@ export default function MeetingTimeline({
             }}
             aria-live="polite"
           >
-            Showing {firstItem}–{lastItem} of {scheduled.length}
+            Showing {firstItem}–{lastItem} of {total}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

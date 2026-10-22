@@ -1,220 +1,97 @@
-import { useState } from 'react'
-
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
-import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined'
-import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
-import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined'
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
+import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded'
+import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined'
+import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined'
 import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined'
-import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
-import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined'
 
-const NAVY = '#123A59'
-const BLUE = '#0967B2'
-const BORDER = '#E5E7F3'
-const MUTED = '#68758D'
+import { T } from './helpers'
+import { Badge } from './ui'
 
-const PILLS = {
-  completed: ['Completed', '#eaf7ef', '#287a4d'],
-  live: ['Live now', '#eaf7ef', '#287a4d'],
-  'just-started': ['Live now', '#eaf7ef', '#287a4d'],
-  'starting-soon': ['Starting soon', '#fff4dc', '#946200'],
-  upcoming: ['Upcoming', '#eef4ff', '#245ea8'],
-}
-
-const buttonSx = {
+const outlineBtn = {
+  bgcolor: T.card,
+  color: T.primary,
+  border: `1px solid ${T.line2}`,
+  borderRadius: '8px',
+  px: 1.75,
+  py: 1,
   textTransform: 'none',
-  fontSize: '0.75rem',
-  fontWeight: 650,
-  color: NAVY,
-  bgcolor: '#fff',
-  borderColor: BORDER,
-  borderRadius: '9px',
-  px: 1.5,
-  height: 36,
-  boxShadow: 'none',
-  flexShrink: 0,
+  fontFamily: T.sans,
+  fontWeight: 600,
   whiteSpace: 'nowrap',
-  '& .MuiButton-startIcon': { mr: 0.75, '& svg': { fontSize: 17 } },
-  '&:hover': { borderColor: BLUE, bgcolor: '#fff' },
+  '&:hover': { bgcolor: T.tint },
 }
 
-function openInCalendar(meeting) {
-  if (Number.isNaN(new Date(meeting.start).getTime())) return
-
-  const fmt = (value) =>
-    new Date(value).toISOString().replace(/[-:]|\.\d{3}/g, '')
-
-  const url =
-    'https://calendar.google.com/calendar/render?action=TEMPLATE' +
-    `&text=${encodeURIComponent(meeting.title || 'Meeting')}` +
-    `&dates=${fmt(meeting.start)}/${fmt(meeting.end)}`
-
-  window.open(url, '_blank', 'noopener')
-}
-
+/* Title block with status pills and the four actions: watch, transcript, print summary, copy link. */
 export default function MeetingHeader({
-  meeting,
-  meetingState,
-  dateText,
-  timeText,
-  durationMinutes,
-  onViewRecording,
+  meeting, state, flags, timeText, dateText, attendedCount, participantCount,
+  onWatch, onTranscript, onPrint, onCopyLink,
 }) {
-  const [copied, setCopied] = useState(false)
-
-  const participantCount = meeting?.participants?.length || 0
-  const pill = PILLS[meetingState?.type]
-  const recordingAvailable = meeting?.recording?.available === true
-
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href)
-      setCopied(true)
-      window.setTimeout(() => setCopied(false), 2000)
-    } catch {
-      /* clipboard unavailable */
-    }
-  }
+  const upcoming = state?.type === 'upcoming'
+  const hasRecording = meeting.recording?.available === true
+  const hasTranscript = meeting.transcript?.available === true
+  const presentPct = participantCount ? Math.round((attendedCount / participantCount) * 100) : 0
+  const summary = typeof meeting.meetingSummary === 'string' ? meeting.meetingSummary : ''
 
   return (
-    <Stack
-      direction={{ xs: 'column', lg: 'row' }}
-      spacing={1.5} sx={{ justifyContent: 'space-between', alignItems: { xs: 'flex-start', lg: 'center' } }}>
-      {/* Left: icon, title, meta */}
-      <Stack
-        direction="row"
-        spacing={1.5}
-        sx={{ alignItems: 'center', minWidth: 0, flex: 1 }}
-      >
-        <Box
-          sx={{
-            width: 48,
-            height: 48,
-            borderRadius: '13px',
-            flexShrink: 0,
-            display: 'grid',
-            placeItems: 'center',
-            bgcolor: '#EAF0FF',
-            color: BLUE,
-            '& svg': { fontSize: 24 },
-          }}
-        >
-          <VideocamOutlinedIcon />
-        </Box>
+    <Box sx={{ bgcolor: T.card, border: `1px solid ${T.line}`, borderRadius: '16px', boxShadow: T.shadow, p: { xs: 2, md: 2.5 } }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2 }}>
+        <Box sx={{ minWidth: 0, flex: '1 1 420px' }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.25, color: T.muted, fontSize: '0.8125rem' }}>
+            <Badge tone={upcoming ? 'blue' : 'green'} sx={{ fontSize: '0.75rem', py: 0.375 }}>
+              {upcoming ? 'Upcoming' : 'Completed'}
+            </Badge>
+            <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+              <ScheduleOutlinedIcon sx={{ fontSize: 16 }} /> {dateText} · {timeText}
+            </Box>
+            <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+              <VideocamOutlinedIcon sx={{ fontSize: 16 }} /> {meeting.platform}
+            </Box>
+          </Box>
 
-        <Box sx={{ minWidth: 0 }}>
-          <Typography
-            component="h1"
-            sx={{
-              fontFamily: 'Georgia, Cambria, serif',
-              fontSize: { xs: '1.35rem', md: '1.8rem' },
-              fontWeight: 600,
-              lineHeight: 1.25,
-              letterSpacing: '-.025em',
-              color: NAVY,
-              overflowWrap: 'anywhere',
-            }}
-          >
-            {meeting.title || 'Untitled meeting'}
+          <Typography component="h1" sx={{ mt: 1, fontFamily: T.serif, fontSize: { xs: '1.75rem', md: '2.125rem' }, fontWeight: 500, lineHeight: 1.2, color: T.primary, letterSpacing: '-0.015em' }}>
+            {meeting.title}
           </Typography>
+          {summary && (
+            <Typography sx={{ mt: 0.75, fontSize: '0.9375rem', color: T.muted, lineHeight: 1.6, maxWidth: 720 }}>{summary}</Typography>
+          )}
 
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{ alignItems: 'center', mt: 0.5, flexWrap: 'wrap', rowGap: 0.5 }}
-          >
-            <Meta icon={<CalendarMonthOutlinedIcon />}>{dateText}</Meta>
-            <Meta icon={<AccessTimeOutlinedIcon />}>
-              {timeText} ({durationMinutes} min)
-            </Meta>
-            <Meta icon={<GroupsOutlinedIcon />}>
-              {participantCount}{' '}
-              {participantCount === 1 ? 'participant' : 'participants'}
-            </Meta>
-
-            {pill && (
-              <Box
-                sx={{
-                  px: 1,
-                  py: 0.2,
-                  borderRadius: '999px',
-                  px: 1,
-                  bgcolor: pill[1],
-                  color: pill[2],
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  lineHeight: 1.6,
-                }}
-              >
-                {pill[0]}
-              </Box>
+          <Box sx={{ mt: 1.5, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {participantCount > 0 && (
+              <Badge tone="slate" sx={{ fontSize: '0.75rem', py: 0.5 }}>
+                {attendedCount} of {participantCount} Present <Box component="span" sx={{ color: T.green }}>({presentPct}%)</Box>
+              </Badge>
             )}
-          </Stack>
+            {flags.meetAIInvited && hasTranscript && (
+              <Badge tone="blue" sx={{ fontSize: '0.75rem', py: 0.5 }}>MeetAI Assistant Attended</Badge>
+            )}
+            {hasRecording && (
+              <Badge tone="slate" sx={{ fontSize: '0.75rem', py: 0.5 }}>Recording Available ({meeting.recording.duration})</Badge>
+            )}
+            {hasTranscript && <Badge tone="slate" sx={{ fontSize: '0.75rem', py: 0.5 }}>Transcript Ready</Badge>}
+          </Box>
         </Box>
-      </Stack>
 
-      {/* Right: actions, always one row on desktop */}
-      <Stack
-        direction="row"
-        spacing={1}
-        sx={{
-          flexShrink: 0,
-          flexWrap: { xs: 'wrap', lg: 'nowrap' },
-          rowGap: 1,
-        }}
-      >
-        <Button
-          variant="outlined"
-          startIcon={<ShareOutlinedIcon />}
-          onClick={handleShare}
-          sx={buttonSx}
-        >
-          {copied ? 'Link copied' : 'Share'}
-        </Button>
-
-        <Button
-          variant="outlined"
-          startIcon={<CalendarMonthOutlinedIcon />}
-          onClick={() => openInCalendar(meeting)}
-          sx={buttonSx}
-        >
-          Open in Calendar
-        </Button>
-
-        <Button
-          variant="contained"
-          startIcon={<PlayArrowOutlinedIcon />}
-          disabled={!recordingAvailable}
-          onClick={onViewRecording}
-          sx={{
-            ...buttonSx,
-            color: '#fff',
-            bgcolor: BLUE,
-            borderColor: BLUE,
-            boxShadow: 'none',
-            '&:hover': { bgcolor: '#075A9D', boxShadow: 'none' },
-          }}
-        >
-          View Recording
-        </Button>
-      </Stack>
-    </Stack>
-  )
-}
-
-function Meta({ icon, children }) {
-  return (
-    <Stack direction="row" spacing={0.6} sx={{ alignItems: 'center' }}>
-      <Box sx={{ display: 'flex', color: MUTED, '& svg': { fontSize: 16 } }}>
-        {icon}
+        <Box sx={{ display: 'grid', gap: 1, minWidth: 200, flexShrink: 0 }}>
+          <Button
+            onClick={onWatch}
+            disabled={!hasRecording}
+            startIcon={<PlayArrowRoundedIcon />}
+            sx={{ bgcolor: T.primary, color: '#fff', borderRadius: '8px', py: 1.125, textTransform: 'none', fontFamily: T.sans, fontWeight: 700, '&:hover': { bgcolor: T.primaryHover }, '&.Mui-disabled': { bgcolor: T.line2, color: T.card } }}
+          >
+            Watch Recording
+          </Button>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+            <Button onClick={onTranscript} disabled={!hasTranscript} startIcon={<DescriptionOutlinedIcon />} sx={outlineBtn}>Transcript</Button>
+            <Button onClick={onPrint} startIcon={<PrintOutlinedIcon />} sx={outlineBtn}>Summary PDF</Button>
+          </Box>
+          <Button onClick={onCopyLink} disabled={!meeting.link} startIcon={<ContentCopyOutlinedIcon />} sx={outlineBtn}>Copy Meeting Link</Button>
+        </Box>
       </Box>
-      <Typography sx={{ fontSize: '0.75rem', color: NAVY, whiteSpace: 'nowrap' }}>
-        {children}
-      </Typography>
-    </Stack>
+    </Box>
   )
 }

@@ -4,7 +4,6 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined'
 import ContentPasteRoundedIcon from '@mui/icons-material/ContentPasteRounded'
-import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined'
 import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined'
 
 import { C, Pill } from '../ui'

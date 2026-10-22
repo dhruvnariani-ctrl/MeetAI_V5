@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -11,6 +11,7 @@ import { getMeetingToggleSettings, getStatusKey } from '../meetings/meetingHelpe
 import { C, Pill, cardSx, lightBtn, minutesOf, scrollSx } from '../ui'
 import { chipSx } from './CalendarFilters'
 import { formatCountdown } from '../../utils/time'
+import usePagination from '../../hooks/usePagination'
 
 const STATUS_FILTERS = [
   ['All', 'All'],
@@ -233,7 +234,6 @@ export default function CalendarMeetingList({
   onOpen,
 }) {
   const [statusFilter, setStatusFilter] = useState('All')
-  const [page, setPage] = useState(1)
 
   const withStatus = useMemo(
     () =>
@@ -260,29 +260,18 @@ export default function CalendarMeetingList({
     [withStatus, statusFilter],
   )
 
-  const totalPages = Math.max(1, Math.ceil(shown.length / PAGE_SIZE))
-  const safePage = Math.min(page, totalPages)
+  const {
+    page: safePage,
+    pageCount: totalPages,
+    total,
+    from: firstItem,
+    to: lastItem,
+    pageItems: paginatedMeetings,
+    setPage,
+  } = usePagination(shown, PAGE_SIZE, statusFilter)
 
-  const paginatedMeetings = useMemo(() => {
-    const startIndex = (safePage - 1) * PAGE_SIZE
-    return shown.slice(startIndex, startIndex + PAGE_SIZE)
-  }, [shown, safePage])
-
-  useEffect(() => {
-    setPage(1)
-  }, [statusFilter, meetings])
-
-  const handleFilterChange = (filter) => {
-    setStatusFilter(filter)
-    setPage(1)
-  }
-
-  const goToPage = (nextPage) => {
-    setPage(Math.min(Math.max(nextPage, 1), totalPages))
-  }
-
-  const firstItem = shown.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1
-  const lastItem = Math.min(safePage * PAGE_SIZE, shown.length)
+  const handleFilterChange = (filter) => setStatusFilter(filter)
+  const goToPage = setPage
 
   return (
     <Box
@@ -395,7 +384,7 @@ export default function CalendarMeetingList({
             }}
             aria-live="polite"
           >
-            Showing {firstItem}–{lastItem} of {shown.length}
+            Showing {firstItem}–{lastItem} of {total}
           </Typography>
 
           <Box

@@ -10,7 +10,6 @@ export default function CompanionFab({
   onClick,
   imageSrc,
   open = false,
-  isAtBottom = false,
   placement = 'floating',
 }) {
   const inHeader = placement === 'header'
@@ -23,9 +22,7 @@ export default function CompanionFab({
         top: 'auto',
         bottom: inHeader
           ? 'auto'
-          : isAtBottom
-            ? { xs: 80, md: 90 }
-            : { xs: 16, md: 27 },
+          : { xs: 16, md: 27 },
         display: 'flex',
         alignItems: 'center',
         gap: '10px',

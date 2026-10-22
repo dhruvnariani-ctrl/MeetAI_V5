@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -22,7 +23,8 @@ import { formatTime } from '../utils/time'
 
 export default function MyTasks() {
   usePageTitle('My Tasks')
-
+  const theme = useTheme()
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('lg'))
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
 
@@ -104,7 +106,7 @@ export default function MyTasks() {
           onView={viewDetails}
           onClear={clearFilters}
         />
-        <TaskDetailsCard task={selected} onDone={askDone} onView={viewDetails} />
+        {isSmallScreen ? null : <TaskDetailsCard task={selected} onDone={askDone} onView={viewDetails} />}
       </Box>
 
       <ConfirmMarkDoneDialog

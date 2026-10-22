@@ -161,7 +161,7 @@ export default function AppLayout() {
             outline: 'none',
             bgcolor: 'background.default',
             p: { xs: 1.5, md: 1.75 },
-            pb: { xs: 11, md: 1.75 },
+            pb: { xs: 1.75, md: 1.75 },
             '&:focus-visible': {
               outline: '2px solid',
               outlineColor: 'primary.main',

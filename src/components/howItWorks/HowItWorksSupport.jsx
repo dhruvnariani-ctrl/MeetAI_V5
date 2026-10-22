@@ -13,7 +13,7 @@ const CONTACTS = [
 ]
 
 /* Navy support banner with the walkthrough and schedule actions and two contact boxes. */
-export default function HowItWorksSupport({ onSchedule, onSchedule1on1Action, onGoToSchedule }) {
+export default function HowItWorksSupport({ onSchedule, onGoToSchedule }) {
   return (
     <Box sx={{ borderRadius: '14px', bgcolor: C.navy, color: '#fff', p: { xs: 2.25, md: 3 }, display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1.4fr 1fr' }, gap: 2.5, alignItems: 'center' }}>
       <Box>
