@@ -102,7 +102,7 @@ export default function HeaderSearch({ query = '', onQueryChange }) {
     }
 
     return getAllMeetings()
-  }, [pageType, location.pathname])
+  }, [pageType])
 
   const currentMeeting = useMemo(
     () =>

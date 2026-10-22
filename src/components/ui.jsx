@@ -18,6 +18,100 @@ export const C = {
   amber: '#B7791F',
 }
 
+export function chipSx(active, accent = C.navy) {
+  return {
+    px: 1.5,
+    py: 0.5,
+    borderRadius: 999,
+    border: `1px solid ${active ? accent : C.line}`,
+    bgcolor: active ? accent : '#fff',
+    color: active ? '#fff' : C.ink,
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    textTransform: 'none',
+    minHeight: 0,
+    '&:hover': {
+      bgcolor: active ? accent : C.soft,
+    },
+  }
+}
+
+export const RADIUS = {
+  card: '14px',
+  control: '10px',
+  pill: '999px',
+}
+
+export const TYPE = {
+  body: '0.9375rem',
+  label: '0.875rem',
+  helper: '0.75rem',
+}
+
+export const fieldSx = {
+  borderRadius: RADIUS.control,
+  bgcolor: '#fff',
+  fontSize: TYPE.body,
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: C.line,
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    borderColor: '#9fb0c6',
+  },
+  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: C.blue,
+    borderWidth: 2,
+  },
+  '&.Mui-error .MuiOutlinedInput-notchedOutline': {
+    borderColor: 'error.main',
+  },
+  '& input': {
+    py: '11px',
+  },
+  '& input::placeholder': {
+    opacity: 1,
+    color: C.muted,
+  },
+}
+
+export const fieldLabelSx = {
+  display: 'block',
+  mb: 0.75,
+  fontSize: TYPE.label,
+  fontWeight: 650,
+  color: C.navy,
+  '&.Mui-focused, &.Mui-error': {
+    color: C.navy,
+  },
+}
+
+export const controlBorderSx = {
+  border: `1px solid ${C.line}`,
+  borderRadius: RADIUS.control,
+}
+
+export const primaryBtn = {
+  bgcolor: C.navy,
+  color: '#fff',
+  borderRadius: RADIUS.control,
+  px: 2,
+  '&:hover': {
+    bgcolor: '#08203A',
+  },
+}
+
+export const lightBtn = {
+  bgcolor: '#fff',
+  color: C.navy,
+  border: `1px solid ${C.line}`,
+  borderRadius: RADIUS.control,
+  px: 2,
+  '&:hover': {
+    bgcolor: C.soft,
+  },
+}
+
+
 export const cardSx = {
   bgcolor: '#fff',
   border: `1px solid ${C.line}`,
@@ -104,21 +198,4 @@ export function PageHead({ badge, title, subtitle, actions }) {
       {actions && <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>{actions}</Box>}
     </Box>
   )
-}
-
-export const primaryBtn = {
-  bgcolor: C.navy,
-  color: '#fff',
-  borderRadius: '10px',
-  px: 2,
-  '&:hover': { bgcolor: '#08203A' },
-}
-
-export const lightBtn = {
-  bgcolor: '#fff',
-  color: C.navy,
-  border: `1px solid ${C.line}`,
-  borderRadius: '10px',
-  px: 2,
-  '&:hover': { bgcolor: C.soft },
 }

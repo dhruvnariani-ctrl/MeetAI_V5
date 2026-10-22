@@ -14,7 +14,6 @@ import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
 import VideoCameraBackOutlinedIcon from '@mui/icons-material/VideoCameraBackOutlined'
 
 import { getMeetingToggleSettings, getStatusKey } from '../meetings/meetingHelpers'
-import { getMeetingById } from '../../data/meetings'
 import {
   C,
   Pill,

@@ -4,7 +4,8 @@ import Box from '@mui/material/Box'
 import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
 
-import MeetAISettingsDialog, { switchSx } from './MeetAISettingDialog'
+import MeetAISettingsDialog from './MeetAISettingDialog'
+import { switchSx } from './meetAISettingStyles'
 
 const toggleLabelSx = {
   fontSize: '0.75rem',

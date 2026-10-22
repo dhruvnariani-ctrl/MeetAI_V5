@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+
+import { useState } from 'react'
 
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -9,19 +10,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
 
-export const switchSx = {
-  '& .MuiSwitch-switchBase, & .MuiSwitch-switchBase.Mui-checked': {
-    color: '#fff',
-  },
-  '& .MuiSwitch-track': {
-    opacity: 1,
-    bgcolor: '#a9b5c5',
-  },
-  '& .Mui-checked + .MuiSwitch-track': {
-    opacity: 1,
-    bgcolor: 'primary.main',
-  },
-}
+import { switchSx } from './meetAISettingStyles'
 
 const controlRowSx = {
   display: 'flex',
@@ -37,9 +26,9 @@ const controlRowSx = {
   '&:hover': { bgcolor: '#f8fafc' },
 }
 
-/* Enter / Space activate a row, like a button. */
 const onActivateKey = (action) => (event) => {
   if (event.key !== 'Enter' && event.key !== ' ') return
+
   event.preventDefault()
   event.stopPropagation()
   action()
@@ -103,37 +92,34 @@ function SettingRow({
   )
 }
 
-/*
- * Dialog for one meeting's MeetAI settings. It keeps its own draft and only
- * calls onSave({ autoJoin, recordVideo }) when "Save Changes" is pressed.
- */
-export default function MeetAISettingsDialog({
-  open,
+function MeetAISettingsDialogContent({
   onClose,
   onSave,
-  settings = {},
-  disabled = false,
+  settings,
+  disabled,
 }) {
-  const [draftAutoJoin, setDraftAutoJoin] = useState(false)
-  const [draftRecordVideo, setDraftRecordVideo] = useState(false)
+  const [draftAutoJoin, setDraftAutoJoin] = useState(
+    settings.autoJoin === true,
+  )
 
-  /* Start from the saved values every time the dialog opens. */
-  useEffect(() => {
-    if (!open) return
-    setDraftAutoJoin(settings.autoJoin === true)
-    setDraftRecordVideo(
-      settings.autoJoin === true && settings.recordVideo === true,
-    )
-  }, [open, settings.autoJoin, settings.recordVideo])
+  const [draftRecordVideo, setDraftRecordVideo] = useState(
+    settings.autoJoin === true && settings.recordVideo === true,
+  )
 
   const toggleAutoJoin = () => {
     const next = !draftAutoJoin
+
     setDraftAutoJoin(next)
-    if (!next) setDraftRecordVideo(false)
+
+    if (!next) {
+      setDraftRecordVideo(false)
+    }
   }
 
   const toggleRecordVideo = () => {
-    if (draftAutoJoin) setDraftRecordVideo((current) => !current)
+    if (draftAutoJoin) {
+      setDraftRecordVideo((current) => !current)
+    }
   }
 
   const handleClose = (event) => {
@@ -144,24 +130,19 @@ export default function MeetAISettingsDialog({
   const handleSave = (event) => {
     event.preventDefault()
     event.stopPropagation()
+
     if (disabled) return
 
     onSave({
-      autoJoin: draftAutoJoin === true,
-      recordVideo: draftAutoJoin === true && draftRecordVideo === true,
+      autoJoin: draftAutoJoin,
+      recordVideo: draftAutoJoin && draftRecordVideo,
     })
   }
 
   const recordDisabled = disabled || !draftAutoJoin
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      fullWidth
-      maxWidth="xs"
-      onClick={(event) => event.stopPropagation()}
-    >
+    <>
       <DialogTitle sx={{ fontSize: '0.9375rem', fontWeight: 700, pb: 1 }}>
         {draftAutoJoin
           ? 'MeetAI meeting settings'
@@ -189,9 +170,14 @@ export default function MeetAISettingsDialog({
           onToggle={toggleAutoJoin}
           onSwitchChange={(event) => {
             event.stopPropagation()
-            if (!disabled) {
-              setDraftAutoJoin(event.target.checked)
-              if (!event.target.checked) setDraftRecordVideo(false)
+
+            if (disabled) return
+
+            const checked = event.target.checked
+            setDraftAutoJoin(checked)
+
+            if (!checked) {
+              setDraftRecordVideo(false)
             }
           }}
           sx={{ opacity: disabled ? 0.65 : 1 }}
@@ -205,9 +191,16 @@ export default function MeetAISettingsDialog({
           onToggle={toggleRecordVideo}
           onSwitchChange={(event) => {
             event.stopPropagation()
-            if (!recordDisabled) setDraftRecordVideo(event.target.checked)
+
+            if (!recordDisabled) {
+              setDraftRecordVideo(event.target.checked)
+            }
           }}
-          switchProps={{ slotProps: { input: { 'aria-label': 'Record video' } } }}
+          switchProps={{
+            slotProps: {
+              input: { 'aria-label': 'Record video' },
+            },
+          }}
           sx={{ mt: 1.25, opacity: recordDisabled ? 0.5 : 1 }}
         />
 
@@ -237,11 +230,43 @@ export default function MeetAISettingsDialog({
           variant="contained"
           onClick={handleSave}
           disabled={disabled}
-          sx={{ textTransform: 'none', fontSize: '0.8125rem', fontWeight: 600 }}
+          sx={{
+            textTransform: 'none',
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+          }}
         >
           Save Changes
         </Button>
       </DialogActions>
+    </>
+  )
+}
+
+export default function MeetAISettingsDialog({
+  open,
+  onClose,
+  onSave,
+  settings = {},
+  disabled = false,
+}) {
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="xs"
+      onClick={(event) => event.stopPropagation()}
+    >
+      {open && (
+        <MeetAISettingsDialogContent
+          key={`${settings.autoJoin}-${settings.recordVideo}`}
+          onClose={onClose}
+          onSave={onSave}
+          settings={settings}
+          disabled={disabled}
+        />
+      )}
     </Dialog>
   )
 }

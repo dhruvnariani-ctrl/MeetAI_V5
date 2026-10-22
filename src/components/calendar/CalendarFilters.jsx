@@ -2,23 +2,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
-import { C } from '../ui'
-
-export function chipSx(active, accent = C.navy) {
-  return {
-    px: 1.5,
-    py: 0.5,
-    borderRadius: 999,
-    border: `1px solid ${active ? accent : C.line}`,
-    bgcolor: active ? accent : '#fff',
-    color: active ? '#fff' : C.ink,
-    fontSize: '0.875rem',
-    fontWeight: 600,
-    textTransform: 'none',
-    minHeight: 0,
-    '&:hover': { bgcolor: active ? accent : C.soft },
-  }
-}
+import { C,chipSx } from '../ui'
 
 /* Quick filter row: platform chips, MeetAI joined, hosted by me, and reset. */
 export default function CalendarFilters({ filters, setFilters, platforms, inPeriod, joined, activeFilterCount, onClear }) {

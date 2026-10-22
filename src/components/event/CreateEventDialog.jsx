@@ -66,7 +66,11 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
   const [recordVideo, setRecordVideo] = useState(false)
   const [errors, setErrors] = useState({})
 
-  const refs = { title: useRef(null), date: useRef(null), start: useRef(null), end: useRef(null) }
+  const titleRef = useRef(null)
+const dateRef = useRef(null)
+const startRef = useRef(null)
+const endRef = useRef(null)
+const refs = { title: titleRef, date: dateRef, start: startRef, end: endRef }
   const clearError = (key) => setErrors((e) => (e[key] ? { ...e, [key]: undefined } : e))
 
   const validate = () => {
@@ -132,7 +136,7 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
       <FormField
         label="Meeting Title"
         required
-        ref={refs.title}
+        ref={titleRef}
         autoFocus
         value={title}
         onChange={(e) => { setTitle(e.target.value); clearError('title') }}
@@ -154,7 +158,7 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
           <FormField
             label="Date"
             required
-            ref={refs.date}
+            ref={dateRef}
             type="date"
             value={date}
             onChange={(e) => { setDate(e.target.value); clearError('date') }}
@@ -169,7 +173,7 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
               <FormField
                 label="Start time"
                 required
-                ref={refs.start}
+                ref={startRef}
                 type="time"
                 value={start}
                 onChange={(e) => { setStart(e.target.value); clearError('start'); clearError('end') }}
@@ -179,7 +183,7 @@ export default function CreateEventDialog({ open, onClose, onSubmit, currentUser
               <FormField
                 label="End time"
                 required
-                ref={refs.end}
+                ref={endRef}
                 type="time"
                 value={end}
                 onChange={(e) => { setEnd(e.target.value); clearError('end') }}

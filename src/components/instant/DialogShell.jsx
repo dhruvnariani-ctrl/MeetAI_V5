@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import Dialog from '@mui/material/Dialog'
@@ -10,7 +11,7 @@ import { useTheme } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
 import HeadsetMicOutlinedIcon from '@mui/icons-material/HeadsetMicOutlined'
 
-import { C, SERIF } from '../ui'
+import { C, SERIF, RADIUS, TYPE } from '../ui'
 
 export const TONES = {
   green: { color: C.green, bg: C.paleGreen, line: '#CFE8DA' },
@@ -41,7 +42,7 @@ export default function DialogShell({
             maxHeight: fullScreen ? '100%' : 'calc(100% - 48px)',
             display: 'flex',
             flexDirection: 'column',
-            borderRadius: fullScreen ? 0 : '14px',
+            borderRadius: fullScreen ? 0 : RADIUS.card,
             overflow: 'hidden',
           },
         },
@@ -64,7 +65,7 @@ export default function DialogShell({
             </Typography>
             {badge}
           </Box>
-          <Typography id={descId} sx={{ mt: 0.5, fontSize: '0.875rem', color: C.muted, lineHeight: 1.5 }}>
+          <Typography id={descId} sx={{ mt: 0.5, fontSize: TYPE.label, color: C.muted, lineHeight: 1.5 }}>
             {subtitle}
           </Typography>
         </Box>
@@ -121,7 +122,7 @@ export function ToggleCard({ title, text, checked, onChange, disabled = false, t
         justifyContent: 'space-between',
         gap: 1.5,
         p: 1.5,
-        borderRadius: '12px',
+        borderRadius: RADIUS.control,
         bgcolor: '#fff',
         border: `1px solid ${checked ? t.color : C.line}`,
         opacity: disabled ? 0.55 : 1,
@@ -158,7 +159,7 @@ export function OptionTile({ label, checked, onChange, tone = 'blue', type = 'ch
         gap: 1,
         px: 1.25,
         py: 1,
-        borderRadius: '10px',
+        borderRadius: RADIUS.control,
         cursor: 'pointer',
         border: `1px solid ${checked ? t.color : C.line}`,
         bgcolor: checked ? t.bg : '#fff',

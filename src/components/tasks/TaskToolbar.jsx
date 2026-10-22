@@ -4,8 +4,7 @@ import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 
 import { TASK_SORT_OPTIONS } from '../../data/tasks'
-import { cardSx } from '../ui'
-import { chipSx } from '../calendar/CalendarFilters'
+import { cardSx,chipSx } from '../ui'
 import { STATUS_FILTERS } from './taskConstants'
 
 const PRIORITIES = ['All', 'High', 'Medium', 'Low']

@@ -6,11 +6,7 @@ import Typography from '@mui/material/Typography'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
 
 import { C, Pill, cardSx, lightBtn } from '../ui'
-import { PRIORITY, formatTime } from './dashboardUtils'
-
-/* Only open work counts: pending, in process and blocked. Done items never show here. */
-const OPEN_STATUSES = ['pending', 'in process', 'blocked']
-export const isOpenTask = (task) => OPEN_STATUSES.includes(task.status)
+import { PRIORITY, formatTime,isOpenTask } from './dashboardUtils'
 
 const STATUS_STYLE = {
   pending: { label: 'Pending', color: C.blue, bg: C.paleBlue },

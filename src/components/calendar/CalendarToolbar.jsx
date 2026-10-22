@@ -6,8 +6,7 @@ import Typography from '@mui/material/Typography'
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded'
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded'
 
-import { C, cardSx, lightBtn } from '../ui'
-import { chipSx } from './CalendarFilters'
+import { C, cardSx, lightBtn,chipSx } from '../ui'
 import { endOfWeek, startOfWeek } from '../../utils/calenderDates'
 
 const VIEWS = [['day', 'Day View'], ['week', 'Week'], ['month', 'Month']]

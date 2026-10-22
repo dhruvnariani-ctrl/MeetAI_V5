@@ -4,11 +4,11 @@ import { useNavigate, useOutletContext } from 'react-router-dom'
 import Box from '@mui/material/Box'
 
 import ConfirmMarkDoneDialog from '../components/tasks/ConfirmMarkDoneDialog'
-import DashboardActionItemsCard, { isOpenTask } from '../components/dashboard/DashboardActionItemsCard'
+import DashboardActionItemsCard from '../components/dashboard/DashboardActionItemsCard'
 import DashboardFocusCard from '../components/dashboard/DashboardFocusCard'
 import DashboardOverviewHeader from '../components/dashboard/DashboardOverviewHeader'
 import MeetingTimeline from '../components/dashboard/MeetingTimeline'
-import { PRIORITY_ORDER, getActionItemsFromMeetings, statusOf, tasksDueTodayForUser } from '../components/dashboard/dashboardUtils'
+import { PRIORITY_ORDER, getActionItemsFromMeetings, statusOf, tasksDueTodayForUser ,isOpenTask} from '../components/dashboard/dashboardUtils'
 import { fitSx, splitSx } from '../components/ui'
 
 import { getTodaysMeetings, updateMeetingActionItemStatus } from '../data/meetings'

@@ -8,8 +8,7 @@ import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded'
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded'
 
 import { getMeetingToggleSettings, getStatusKey } from '../meetings/meetingHelpers'
-import { C, Pill, cardSx, lightBtn, minutesOf, scrollSx } from '../ui'
-import { chipSx } from './CalendarFilters'
+import { C, Pill, cardSx, lightBtn, minutesOf, scrollSx, chipSx } from '../ui'
 import { formatCountdown } from '../../utils/time'
 import usePagination from '../../hooks/usePagination'
 

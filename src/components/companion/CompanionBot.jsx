@@ -1,12 +1,11 @@
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import CompanionDialog from './CompanionDialog'
 import CompanionFab from './CompanionFab'
 import { DEFAULT_ROUTES, GREETING, getReply } from './companionEngine'
 
-const BOTTOM_THRESHOLD = 32
 
 export default function CompanionBot({
   meetings = [],
@@ -25,7 +24,7 @@ export default function CompanionBot({
 
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [isAtBottom, setIsAtBottom] = useState(false)
+
   const [messages, setMessages] = useState([
     { id: 1, role: 'bot', ...GREETING },
   ])
@@ -100,7 +99,6 @@ export default function CompanionBot({
     <>
       <CompanionFab
         open={open}
-        isAtBottom={isAtBottom}
         placement={placement}
         imageSrc={imageSrc}
         onClick={() => setOpen(true)}
@@ -108,7 +106,6 @@ export default function CompanionBot({
 
       <CompanionDialog
         open={open}
-        isAtBottom={isAtBottom}
         onClose={() => setOpen(false)}
         messages={messages}
         busy={busy}

@@ -42,7 +42,10 @@ export const formatDue = (value) => {
     ? date.toLocaleDateString([], { day: 'numeric', month: 'short' })
     : ''
 }
+const OPEN_STATUSES = ['pending', 'in process', 'blocked']
 
+export const isOpenTask = (task) =>
+  OPEN_STATUSES.includes(task.status?.toLowerCase())
 export const greetingFor = (now) =>
   now.getHours() < 12
     ? 'Good morning'
