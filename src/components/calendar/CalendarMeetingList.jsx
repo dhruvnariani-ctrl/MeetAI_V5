@@ -51,7 +51,7 @@ function MeetingCard({
     )
 
   return (
-    <Box
+    <Box data-tour="calendar-meeting-list"
       role="button"
       tabIndex={0}
       aria-pressed={selected}

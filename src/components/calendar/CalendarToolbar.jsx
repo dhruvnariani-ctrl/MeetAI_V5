@@ -64,7 +64,7 @@ export default function CalendarToolbar({ title, count, view, selectedDate, onVi
           gap: 1.5,
         }}
       >
-    <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: C.soft, borderRadius: '10px', p: 0.25 }}>
+    <Box data-tour="calendar-date-menu" sx={{ display: 'flex', alignItems: 'center', bgcolor: C.soft, borderRadius: '10px', p: 0.25 }}>
         <IconButton size="small" aria-label={`Previous ${unit}`} onClick={onPrevious}>
           <ChevronLeftRoundedIcon />
         </IconButton>
@@ -99,7 +99,7 @@ export default function CalendarToolbar({ title, count, view, selectedDate, onVi
         <Button onClick={onToday} sx={{ ...lightBtn, bgcolor: C.paleBlue, color: C.blue, border: 0, px: 1.5, py: 0.6, whiteSpace: 'nowrap' }}>
           Go to Today
         </Button>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} role="group" aria-label="Calendar view">
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} role="group" aria-label="Calendar view" data-tour="calendar-view">
           {VIEWS.map(([value, text]) => (
             <Button key={value} aria-pressed={view === value} onClick={() => onViewChange(value)} sx={{ ...chipSx(view === value), borderRadius: '10px', px: 2 }}>
               {text}

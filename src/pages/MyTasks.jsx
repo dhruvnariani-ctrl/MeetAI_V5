@@ -30,7 +30,7 @@ export default function MyTasks() {
 
   const [tasks, setTasks] = useState(() => getTasksFromDashboard(currentUser))
   const [syncedAt, setSyncedAt] = useState(() => new Date())
-  const [filter, setFilter] = useState('All')
+  const [filter, setFilter] = useState('Open')
   const [priority, setPriority] = useState('All')
   const [sortBy, setSortBy] = useState('My Order')
   const [selectedId, setSelectedId] = useState(null)

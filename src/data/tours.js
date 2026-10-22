@@ -19,21 +19,21 @@ const FIRST_MEETING_ID =
 export const SIDEBAR_NAVIGATION_STEP = {
   path: '/',
   target:
-    '[data-tour="sidebar-navigation"]',
+    '[data-tour="nav-tabs"]',
   title: 'Your main pages',
   icon: 'Groups',
   body:
-    'Use the sidebar to move between Dashboard, Calendar, Recorded Meetings, and My Tasks.',
+    'Use the top menu to move between Today’s Schedule, Full Calendar, Meeting Notes & Recordings, Action Items & Tasks, and How It Works.',
   action:
-    'Try the different pages from the sidebar.',
+    'Try the different pages from the top menu.',
   tip:
-    'Dashboard gives you an overview, Calendar manages meetings, Recorded Meetings contains completed meeting content, and My Tasks contains your follow-up work.',
+    'Today’s Schedule gives you an overview, Full Calendar manages meetings, Meeting Notes & Recordings holds completed meeting content, and Action Items & Tasks contains your follow-up work.',
 }
 
 export const SIDEBAR_INSTANT_JOIN_STEP = {
   path: '/',
   target:
-    '[data-tour="Add MeetAI to a Meeting"]',
+    '[data-tour="add-meetai"]',
   title: 'Add MeetAI to a Meeting',
   icon: 'PlayCircleOutlined',
   body:
@@ -42,20 +42,6 @@ export const SIDEBAR_INSTANT_JOIN_STEP = {
     'Select Add MeetAI to a Meeting when you need to join a meeting quickly.',
   tip:
     'This is useful when you already have a meeting link ready.',
-}
-
-export const SIDEBAR_CONTROLS_STEP = {
-  path: '/',
-  target:
-    '[data-tour="sidebar-controls"]',
-  title: 'Sidebar controls',
-  icon: 'HelpOutlined',
-  body:
-    'These controls let you refresh your data, open the How it works guide, and collapse the sidebar.',
-  action:
-    'Try the controls when you are ready.',
-  tip:
-    'Collapsing the sidebar gives the main content more space.',
 }
 
 export const HEADER_SEARCH_BAR_STEP = {
@@ -75,7 +61,6 @@ export const HEADER_SEARCH_BAR_STEP = {
 export const SIDEBAR_TOUR_STEPS = [
   SIDEBAR_NAVIGATION_STEP,
   SIDEBAR_INSTANT_JOIN_STEP,
-  SIDEBAR_CONTROLS_STEP,
   HEADER_SEARCH_BAR_STEP,
 ]
 
@@ -155,20 +140,6 @@ export const RECORDED_MEETINGS_TOUR_STEPS = [
   {
     path: '/recorded',
     target:
-      '[data-tour="recorded-search"]',
-    title: 'Search recorded meetings',
-    icon: 'VideoLibrary',
-    body:
-      'Use the search box to find recorded meetings by title, platform, or participant.',
-    action:
-      'Try searching for a meeting or participant.',
-    tip:
-      'The results update automatically as you type.',
-  },
-
-  {
-    path: '/recorded',
-    target:
       '[data-tour="recorded-filters"]',
     title: 'Filter recordings',
     icon: 'FilterList',
@@ -206,8 +177,10 @@ export const RECORDED_MEETINGS_TOUR_STEPS = [
       'Review the information on a recorded meeting.',
     tip:
       'Only meetings with an available recording are displayed here.',
+    scrollTop: true,
+    scrollStart: true,
   },
-]
+]  
 
 /*
  * Backward-compatible single Recorded Meetings step.
@@ -262,7 +235,9 @@ export const MEETING_DETAILS_TOUR_STEPS = [
       'Review the available meeting content.',
     tip:
       'Different sections become useful after a meeting has been completed.',
-  },
+    scrollTop: true,
+    scrollStart: true,
+    },
 ]
 
 /*

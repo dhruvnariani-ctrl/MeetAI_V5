@@ -1,18 +1,12 @@
-import { useEffect, useState } from 'react'
+
+import { useState } from 'react'
 
 /* Client-side pagination shared by lists and tables. Resets when items or resetKey changes. */
 export default function usePagination(items, pageSize, resetKey = '') {
   const [state, setState] = useState({ page: 1, items, resetKey })
+
   const isCurrent = state.items === items && state.resetKey === resetKey
   const page = isCurrent ? state.page : 1
-
-  useEffect(() => {
-    setState((current) =>
-      current.items === items && current.resetKey === resetKey
-        ? current
-        : { page: 1, items, resetKey },
-    )
-  }, [items, resetKey])
 
   const total = items.length
   const pageCount = Math.max(1, Math.ceil(total / pageSize))

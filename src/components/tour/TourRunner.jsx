@@ -1,4 +1,3 @@
-
 import {
   useCallback,
   useEffect,
@@ -15,13 +14,12 @@ import TourCard from './TourCard'
 import TourIntro from './TourIntro'
 import TourOverlay from './TourOverlay'
 
-import { APP_TOUR_STEPS } from '../../data/tours'
 import {
   readTour,
   saveTour,
-  startAppTour,
   stopAppTour,
 } from './TourStorage'
+
 import {
   findTarget,
   positionCard,
@@ -29,14 +27,13 @@ import {
 } from './TourUtils'
 
 const COLORS = {
-  navy: '#172437',
-  blue: '#1769c2',
-  blueSoft: '#eaf2fd',
-  overlay: 'rgba(17, 31, 49, 0.48)',
-  border: 'rgba(23, 36, 55, 0.12)',
+  navy: '#0B2A4A',
+  blue: '#0B57D0',
+  blueSoft: '#E8F0FC',
+  overlay: 'rgba(11, 42, 74, 0.48)',
+  border: '#DFE7EC',
 }
 
-const GAP = 18
 const VIEWPORT_PADDING = 16
 const CARD_WIDTH = 360
 const TARGET_RETRY_LIMIT = 30
@@ -45,41 +42,136 @@ const TARGET_RETRY_DELAY = 150
 function getPosition(targetRect, cardElement) {
   const viewportWidth = window.innerWidth
   const viewportHeight = window.innerHeight
+  const isSmallScreen = viewportWidth < 640
 
   const cardWidth = Math.min(
     cardElement?.getBoundingClientRect().width || CARD_WIDTH,
-    viewportWidth - VIEWPORT_PADDING * 2
+    viewportWidth - VIEWPORT_PADDING * 2,
   )
 
-  const cardHeight =
-    cardElement?.getBoundingClientRect().height || 340
+  const measuredHeight =
+    cardElement?.getBoundingClientRect().height || 300
+
+  const maxLeft = Math.max(
+    VIEWPORT_PADDING,
+    viewportWidth - cardWidth - VIEWPORT_PADDING,
+  )
+
+  const centeredLeft = Math.min(
+    Math.max((viewportWidth - cardWidth) / 2, VIEWPORT_PADDING),
+    maxLeft,
+  )
 
   if (!targetRect) {
-    return positionCard(null, cardWidth, cardHeight)
+    return {
+      left: centeredLeft,
+      top: VIEWPORT_PADDING,
+      maxHeight: `calc(100dvh - ${VIEWPORT_PADDING * 2}px)`,
+    }
+  }
+
+  if (isSmallScreen) {
+    const gap = 12
+
+    const topSpace = Math.max(
+      targetRect.top - VIEWPORT_PADDING - gap,
+      0,
+    )
+
+    const bottomSpace = Math.max(
+      viewportHeight -
+        targetRect.bottom -
+        VIEWPORT_PADDING -
+        gap,
+      0,
+    )
+
+    // Prefer a side that fits the card; otherwise use the
+    // side with more space and constrain the card height.
+    const placeBelow =
+      bottomSpace >= measuredHeight || bottomSpace >= topSpace
+
+    const availableSpace = placeBelow ? bottomSpace : topSpace
+
+    const maxHeight = Math.max(
+      150,
+      Math.min(
+        availableSpace,
+        viewportHeight - VIEWPORT_PADDING * 2,
+      ),
+    )
+
+    const top = placeBelow
+      ? Math.min(
+          targetRect.bottom + gap,
+          viewportHeight - maxHeight - VIEWPORT_PADDING,
+        )
+      : Math.max(
+          VIEWPORT_PADDING,
+          targetRect.top - gap - maxHeight,
+        )
+
+    return {
+      left: centeredLeft,
+      top,
+      maxHeight: `${maxHeight}px`,
+    }
   }
 
   const position = positionCard(
     targetRect,
     cardWidth,
-    cardHeight
+    measuredHeight,
   )
 
   return {
     left: Math.min(
       Math.max(position.left, VIEWPORT_PADDING),
-      Math.max(
-        VIEWPORT_PADDING,
-        viewportWidth - cardWidth - VIEWPORT_PADDING
-      )
+      maxLeft,
     ),
     top: Math.min(
       Math.max(position.top, VIEWPORT_PADDING),
       Math.max(
         VIEWPORT_PADDING,
-        viewportHeight - cardHeight - VIEWPORT_PADDING
-      )
+        viewportHeight - measuredHeight - VIEWPORT_PADDING,
+      ),
     ),
   }
+}
+
+/**
+ * Scroll the active tour target according to the options
+ * supplied in the current tours.js step.
+ *
+ * scrollStart: align the target to the top of its scroll viewport.
+ * scrollTop: scroll the window to the top of the page.
+ * Default: retain responsive smooth scrolling.
+ */
+function scrollToStepTarget(element, step) {
+  if (!element) return
+
+  if (step?.scrollStart === true) {
+    element.scrollIntoView({
+      behavior: 'auto',
+      block: 'start',
+      inline: 'nearest',
+    })
+    return
+  }
+
+  if (step?.scrollTop === true) {
+    window.scrollTo({
+      top: 0,
+      behavior: 'auto',
+    })
+    return
+  }
+
+  element.scrollIntoView({
+    behavior: 'smooth',
+    block: window.innerWidth < 640 ? 'start' : 'center',
+    inline: 'nearest',
+  })
 }
 
 export default function TourRunner() {
@@ -93,10 +185,12 @@ export default function TourRunner() {
 
   const [tour, setTour] = useState(() => readTour())
   const [targetRect, setTargetRect] = useState(null)
+
   const [cardPosition, setCardPosition] = useState({
     top: 100,
     left: 100,
   })
+
   const [targetMissing, setTargetMissing] = useState(false)
 
   const activeStep = tour?.steps?.[tour.index] ?? null
@@ -124,9 +218,7 @@ export default function TourRunner() {
 
   const beginTour = useCallback(() => {
     setTour((current) => {
-      if (!current) {
-        return current
-      }
+      if (!current) return current
 
       const next = {
         ...current,
@@ -138,39 +230,34 @@ export default function TourRunner() {
     })
   }, [])
 
-  const goToStep = useCallback((index) => {
-    setTour((current) => {
-      if (!current) {
-        return current
-      }
+  const goToStep = useCallback(
+    (index) => {
+      setTour((current) => {
+        if (!current) return current
 
-      if (index < 0) {
-        return current
-      }
+        if (index < 0 || index >= current.steps.length) {
+          return current
+        }
 
-      if (index >= current.steps.length) {
-        return current
-      }
+        const next = {
+          ...current,
+          index,
+          phase: 'tour',
+        }
 
-      const next = {
-        ...current,
-        index,
-        phase: 'tour',
-      }
+        saveTour(next)
+        return next
+      })
 
-      saveTour(next)
-      return next
-    })
-
-    releaseTarget()
-    setTargetRect(null)
-    setTargetMissing(false)
-  }, [releaseTarget])
+      releaseTarget()
+      setTargetRect(null)
+      setTargetMissing(false)
+    },
+    [releaseTarget],
+  )
 
   const goNext = useCallback(() => {
-    if (!tour) {
-      return
-    }
+    if (!tour) return
 
     if (tour.index >= tour.steps.length - 1) {
       closeTour()
@@ -181,9 +268,7 @@ export default function TourRunner() {
   }, [tour, goToStep, closeTour])
 
   const goBack = useCallback(() => {
-    if (!tour || tour.index === 0) {
-      return
-    }
+    if (!tour || tour.index === 0) return
 
     goToStep(tour.index - 1)
   }, [tour, goToStep])
@@ -213,17 +298,12 @@ export default function TourRunner() {
    * Keyboard controls.
    */
   useEffect(() => {
-    if (!isRunning) {
-      return undefined
-    }
+    if (!isRunning) return undefined
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
         closeTour()
-      } else if (
-        event.key === 'ArrowRight' &&
-        !isIntro
-      ) {
+      } else if (event.key === 'ArrowRight' && !isIntro) {
         goNext()
       } else if (
         event.key === 'ArrowLeft' &&
@@ -271,8 +351,8 @@ export default function TourRunner() {
   ])
 
   /*
-   * Locate the current target after route rendering.
-   * Missing selectors do not crash the app or trap the user.
+   * Locate the active target after route rendering, scroll it
+   * according to the step options, then track its position.
    */
   useLayoutEffect(() => {
     if (
@@ -281,7 +361,6 @@ export default function TourRunner() {
       !activeStep
     ) {
       releaseTarget()
-      setTargetRect(null)
       return undefined
     }
 
@@ -294,6 +373,7 @@ export default function TourRunner() {
 
     let cancelled = false
     let attempts = 0
+    let observer
 
     const updatePosition = () => {
       const element = targetRef.current
@@ -311,15 +391,11 @@ export default function TourRunner() {
       }
 
       setTargetRect(rect)
-      setCardPosition(
-        getPosition(rect, cardRef.current)
-      )
+      setCardPosition(getPosition(rect, cardRef.current))
     }
 
     const locate = () => {
-      if (cancelled) {
-        return
-      }
+      if (cancelled) return
 
       const element = findTarget(activeStep.target)
 
@@ -329,34 +405,27 @@ export default function TourRunner() {
         if (attempts < TARGET_RETRY_LIMIT) {
           retryTimerRef.current = window.setTimeout(
             locate,
-            TARGET_RETRY_DELAY
+            TARGET_RETRY_DELAY,
           )
         } else {
           setTargetMissing(true)
           setTargetRect(null)
-          setCardPosition(
-            getPosition(null, cardRef.current)
-          )
+          setCardPosition(getPosition(null, cardRef.current))
         }
 
         return
       }
 
       setTargetMissing(false)
-
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'nearest',
-      })
-
       targetRef.current = element
 
-      // Track layout changes while the step remains active.
+      // Apply the current step's scroll behavior.
+      scrollToStepTarget(element, activeStep)
+
+      // Track position changes caused by scrolling, resizing,
+      // and layout changes while the step remains active.
       window.addEventListener('resize', updatePosition)
       window.addEventListener('scroll', updatePosition, true)
-
-      let observer
 
       if (typeof ResizeObserver !== 'undefined') {
         observer = new ResizeObserver(updatePosition)
@@ -371,11 +440,15 @@ export default function TourRunner() {
 
       targetCleanupRef.current = cleanup
 
-      // Initial update plus a second pass after smooth scrolling starts.
+      // Calculate immediately and again after scrolling/layout updates.
       updatePosition()
+
       retryTimerRef.current = window.setTimeout(
         updatePosition,
-        220
+        activeStep.scrollStart === true ||
+          activeStep.scrollTop === true
+          ? 80
+          : 220,
       )
     }
 
@@ -390,12 +463,15 @@ export default function TourRunner() {
     tour?.phase,
     activeStep?.target,
     activeStep?.path,
+    activeStep?.scrollStart,
+    activeStep?.scrollTop,
     location.pathname,
     releaseTarget,
   ])
 
   /*
-   * Keep the floating card in view when its content or viewport changes.
+   * Keep the floating card positioned when its content,
+   * target, or viewport dimensions change.
    */
   useLayoutEffect(() => {
     if (!isRunning || isIntro) {
@@ -403,9 +479,7 @@ export default function TourRunner() {
     }
 
     const update = () => {
-      setCardPosition(
-        getPosition(targetRect, cardRef.current)
-      )
+      setCardPosition(getPosition(targetRect, cardRef.current))
     }
 
     update()
@@ -430,8 +504,7 @@ export default function TourRunner() {
   ])
 
   /*
-   * Start a tour only when an explicit UI action requests it.
-   * Existing App tour menu handlers can call startAppTour(APP_TOUR_STEPS).
+   * Do not render anything when no tour is active.
    */
   if (!tour) {
     return null
@@ -486,7 +559,7 @@ export default function TourRunner() {
             borderRadius: '10px',
             bgcolor: '#fff',
             color: COLORS.navy,
-            boxShadow: '0 8px 24px rgba(23, 36, 55, 0.12)',
+            boxShadow: '0 8px 24px rgba(11, 42, 74, 0.12)',
             fontSize: '0.8125rem',
             fontWeight: 500,
             textAlign: 'center',

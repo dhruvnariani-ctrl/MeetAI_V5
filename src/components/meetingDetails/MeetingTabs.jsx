@@ -1,4 +1,3 @@
-
 import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
@@ -116,6 +115,7 @@ export default function MeetingTabs({
           return (
             <Tab
               key={tab.value}
+              data-tour={tab.value === 'attendees' ? 'meeting-participants' : undefined}
               value={tab.value}
               label={
                 <TabLabel

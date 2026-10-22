@@ -30,7 +30,7 @@ export function MeetingRow({
     : 0
 
   return (
-    <Box
+    <Box data-tour="dashboard-todays-meetings"
       sx={{
         display: 'flex',
         alignItems: 'center',

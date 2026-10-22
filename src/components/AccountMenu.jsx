@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 
 import Avatar from '@mui/material/Avatar'
@@ -61,6 +60,7 @@ export default function AccountMenu({
       <Tooltip title="Account">
         <IconButton
           id="account-menu-button"
+          data-tour="account-menu"
           aria-controls={open ? 'account-menu' : undefined}
           aria-haspopup="true"
           aria-expanded={open ? 'true' : undefined}

@@ -21,10 +21,10 @@ export default function DashboardOverviewHeader({ now, firstName, summary, onSch
         <Typography sx={{ fontSize: '0.9375rem', color: C.muted }}>{summary}</Typography>
       </Box>
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-        <Button onClick={onSchedule} startIcon={<AddRoundedIcon />} sx={{ ...primaryBtn, bgcolor: C.blue, '&:hover': { bgcolor: '#0A49AB' } }}>
+        <Button onClick={onSchedule} data-tour="dashboard-new-meeting" startIcon={<AddRoundedIcon />} sx={{ ...primaryBtn, bgcolor: C.blue, '&:hover': { bgcolor: '#0A49AB' } }}>
           Schedule a Meeting
         </Button>
-        <Button onClick={onInstant} startIcon={<SmartToyOutlinedIcon />} sx={lightBtn}>
+        <Button onClick={onInstant} data-tour="add-meetai" startIcon={<SmartToyOutlinedIcon />} sx={lightBtn}>
           Add MeetAI to a Meeting
         </Button>
       </Box>

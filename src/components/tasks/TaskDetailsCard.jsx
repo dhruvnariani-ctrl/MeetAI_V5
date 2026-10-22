@@ -53,7 +53,7 @@ export default function TaskDetailsCard({ task, onDone, onView }) {
         </Typography>
 
         <Box sx={{ mt: 1.5, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
-          <Button
+          <Button data-tour="mark-task-done"
             disabled={done}
             startIcon={<CheckCircleOutlineRoundedIcon />}
             onClick={() => onDone(task)}
@@ -93,7 +93,7 @@ export default function TaskDetailsCard({ task, onDone, onView }) {
             <Typography sx={label}>PRIORITY</Typography>
             <Typography sx={{ fontWeight: 600, color: C.navy }}>{priority}</Typography>
           </Box>
-          <Box sx={box}>
+          <Box data-tour="task-status" sx={box}>
             <Typography sx={label}>STATUS</Typography>
             <Typography sx={{ fontWeight: 600, color: C.navy }}>
               {done ? 'Completed' : normalizeTaskStatus(task.status)}

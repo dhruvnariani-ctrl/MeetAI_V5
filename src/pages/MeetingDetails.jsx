@@ -130,7 +130,7 @@ export default function MeetingDetails() {
             />
           </Box>
 
-          <Box sx={{ minWidth: 0 }}>
+          <Box data-tour="meeting-content" sx={{ minWidth: 0 }}>
             {activeTab === 'overview' && (
               <OverviewTab meeting={meeting} flags={flags} attendance={attendance} onNavigate={goToTab} onChanged={refresh} onAskDone={setPendingItem} />
             )}

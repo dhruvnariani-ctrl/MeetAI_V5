@@ -22,6 +22,7 @@ export default function Dashboard() {
   usePageTitle('Dashboard')
 
   const now = useNow()
+  const nowMinute = Math.floor(now.getTime() / 60000)
   const navigate = useNavigate()
   const currentUser = useCurrentUser()
   const { openCreate, openInstant } = useOutletContext() ?? {}
@@ -36,8 +37,7 @@ export default function Dashboard() {
       filterUserMeetings(getTodaysMeetings(now), currentUser)
         .map((m) => ({ ...m, _start: new Date(m.start), _end: new Date(m.end) }))
         .sort((a, b) => a._start - b._start),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [Math.floor(now.getTime() / 60000), currentUser, version],
+    [nowMinute, currentUser,version],
   )
 
   // Due today and still open (pending, in progress or blocked), highest priority first.

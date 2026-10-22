@@ -10,7 +10,7 @@ import RecordingCard from './RecordingCard'
 export default function RecordingList({ recorded, pager, selectedId, onSelect, onOpen, onClear }) {
   return (
     <>
-      <Box sx={{ ...scrollSx, flex: 1, p: 1.25, display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <Box data-tour="recorded-meeting-list" sx={{ ...scrollSx, flex: 1, p: 1.25, display: 'flex', flexDirection: 'column', gap: 1 }}>
         {recorded.length === 0 && (
           <Box sx={{ p: 3, textAlign: 'center' }}>
             <Typography sx={{ fontWeight: 600, color: C.navy }}>No recordings found</Typography>

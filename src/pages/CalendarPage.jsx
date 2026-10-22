@@ -70,7 +70,7 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('lg'))
         </Typography>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button onClick={() => openInstant?.()} startIcon={<SmartToyOutlinedIcon />} sx={lightBtn}>Add MeetAI to a Meeting</Button>
-          <Button onClick={() => openCreate?.()} startIcon={<AddRoundedIcon />} sx={primaryBtn}>Schedule New Meeting</Button>
+          <Button data-tour="new-meeting" onClick={() => openCreate?.()} startIcon={<AddRoundedIcon />} sx={primaryBtn}>Schedule New Meeting</Button>
         </Box>
       </Box>
 

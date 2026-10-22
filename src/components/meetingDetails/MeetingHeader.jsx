@@ -38,7 +38,7 @@ export default function MeetingHeader({
   const summary = typeof meeting.meetingSummary === 'string' ? meeting.meetingSummary : ''
 
   return (
-    <Box sx={{ bgcolor: T.card, border: `1px solid ${T.line}`, borderRadius: '16px', boxShadow: T.shadow, p: { xs: 2, md: 2.5 } }}>
+    <Box data-tour="meeting-header" sx={{ bgcolor: T.card, border: `1px solid ${T.line}`, borderRadius: '16px', boxShadow: T.shadow, p: { xs: 2, md: 2.5 } }}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2 }}>
         <Box sx={{ minWidth: 0, flex: '1 1 420px' }}>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.25, color: T.muted, fontSize: '0.8125rem' }}>

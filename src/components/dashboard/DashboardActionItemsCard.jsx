@@ -46,7 +46,7 @@ export default function DashboardActionItemsCard({ items, onToggle, onViewAll })
   const open = items.filter(isOpenTask)
 
   return (
-    <Box sx={{ ...cardSx, display: 'flex', flexDirection: 'column', minWidth: 0, height: '100%', boxSizing: 'border-box' }}>
+    <Box data-tour="dashboard-action-items" sx={{ ...cardSx, display: 'flex', flexDirection: 'column', minWidth: 0, height: '100%', boxSizing: 'border-box' }}>
       <Box sx={{ px: 2, py: 1.25, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${C.line}` }}>
         <Box>
           <Typography component="h2" sx={{ fontSize: '1.25rem', fontWeight: 600, color: C.navy }}>

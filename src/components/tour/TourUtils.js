@@ -6,7 +6,12 @@ export function findTarget(selector) {
   if (!selector) return null
 
   try {
-    return document.querySelector(selector)
+    // Responsive pages often render the same target twice (e.g. desktop and mobile nav).
+    // Use the first copy that is actually visible.
+    for (const element of document.querySelectorAll(selector)) {
+      if (element.getClientRects().length > 0) return element
+    }
+    return null
   } catch {
     return null
   }

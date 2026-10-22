@@ -20,7 +20,7 @@ export default function ParticipantPicker({ participants, onAdd, onRemove, searc
 
   // Debounced directory search; people already added are filtered out.
   useEffect(() => {
-    if (query.trim().length < 2) { setResults([]); return undefined }
+    if (query.trim().length < 2) return undefined
     let cancelled = false
     const t = setTimeout(async () => {
       const found = await searchDirectory(query.trim())
@@ -44,7 +44,7 @@ export default function ParticipantPicker({ participants, onAdd, onRemove, searc
           value={null}
           inputValue={query}
           onInputChange={(_, v) => setQuery(v)}
-          options={results}
+          options={query.trim().length < 2 ? [] : results}
           filterOptions={(x) => x /* already filtered by the directory search */}
           getOptionLabel={(o) => o.name}
           isOptionEqualToValue={(a, b) => a.email === b.email}

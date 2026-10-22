@@ -1,4 +1,3 @@
-
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Fab from '@mui/material/Fab'
@@ -55,6 +54,7 @@ export default function CompanionFab({
       <Box sx={{ position: 'relative', flexShrink: 0 }}>
         <Tooltip title="Ask your Companion">
           <Fab
+            data-tour="companion"
             aria-label="Ask your Companion"
             aria-haspopup="dialog"
             aria-expanded={open}

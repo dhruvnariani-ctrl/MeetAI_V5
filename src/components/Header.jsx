@@ -264,7 +264,7 @@ export default function Header({
 
         {/* Desktop main navigation */}
         <Box
-          component="nav"
+          component="nav" data-tour="nav-tabs"
           aria-label="Main"
           sx={{
             display: { xs: 'none', md: 'flex' },
@@ -375,7 +375,7 @@ export default function Header({
           </Typography>
 
           <Box
-            component="nav"
+            component="nav" data-tour="nav-tabs"
             aria-label="Mobile main navigation"
             sx={{
               display: 'flex',
